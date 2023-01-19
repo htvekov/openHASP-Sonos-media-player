@@ -1,0 +1,296 @@
+# OpenHASP plate config
+# Search for t3e_02 and replace with your own plate name
+# Plate configuration/automation rely on media player on page 2 in openHASP
+
+openhasp:
+  t3e_02:
+    objects:
+      # Page 0 objects - Top status bar and navigation buttons
+      # These object can all be deleted if not needed or altered to fit your needs
+      - obj: "p0b4"
+        properties:
+          "val": "{{states('openhasp.t3e_02') | int(0) -1}}"
+      
+      - obj: "p0b5"
+        properties:
+          "text": "{% if states('sensor.outdoor_temperature') != 'unknown' %} {{'\\ue50f'}} {{states('sensor.outdoor_temperature') }}{{'\\u00b0'}}C {% else %} {{'\\ue50f'}} -.- {{'\\u00b0'}}C {% endif %}"
+      - obj: "p0b6"
+        properties:
+          "text": "{{ states('sensor.time') }}"
+  
+      - obj: "p0b7"
+        properties:
+          "text_color": "{% if -30 <= state_attr('openhasp.t3e_02','rssi') | int(0) %}green{% elif -31 > state_attr('openhasp.t3e_02','rssi') | int(0) >= -50 %}orange{% elif -51 > state_attr('openhasp.t3e_02','rssi') |int (0) >= -80 %}tomato{% else %}red{% endif %}"
+      
+      # Page 2 - Sonos media player plate
+      # Mute button - Event only in configuration.
+      # Track & Properties (icon, color & val) done in automations.yaml
+      - obj: "p2b24"
+        event:
+          "down":
+            - service: media_player.volume_mute
+              data:
+                entity_id: group.sonos_all
+                is_volume_muted:  >
+                  {% if state_attr((state_attr('group.sonos_all', 'entity_id')[0]),'is_volume_muted') %}
+                    false
+                  {% else %}
+                    true
+                  {% endif %}  
+      
+      # Shuffle button - Event only in configuration.
+      # Track & Properties (icon, color & val) done in automations.yaml
+      - obj: "p2b25"
+        event:
+          "down":
+            - service: media_player.shuffle_set
+              data:
+                entity_id: group.sonos_all
+                shuffle:  >
+                  {% if state_attr((state_attr('group.sonos_all', 'entity_id')[0]),'shuffle') %}
+                    false
+                  {% else %}
+                    true
+                  {% endif %} 
+      
+      # Repeat button - Event only in configuration.
+      # Track & Properties (icon, color & val) done in automations.yaml
+      - obj: "p2b27"
+        event:
+          "down":
+            - service: media_player.repeat_set
+              data:
+                entity_id: group.sonos_all
+                repeat: >
+                  {% if is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'one') %}
+                    all
+                  {% elif is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'all') %}
+                    off
+                  {% elif is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'off') %}
+                    one
+                  {% endif %}
+      
+      # Progressbar - Set max value according to media_duration attribute
+      # Reset value to zero moving forward in playlist while paused
+      - obj: "p2b41"
+        properties:
+          "max": "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0],'media_duration') | int(0) }}"
+          "val": >
+            {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position') != None %}
+              {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position') | int(0) }}
+            {% else %}
+              0
+            {% endif %}
+
+      # Sonos dynamic PLAYLIST options
+      - obj: "p2b98"
+        properties:
+          # "options": "PLAYLIST with * as start"
+          # Show all sources starting with '*'. Sources are without preceeding asterix ('*') and to be shown in separate tab (p2b99)
+          # Show on plate without preceeding '*' and add again to source upon selection
+          "options": "{{ states('sensor.hasp_sonos_playlist_options') }}"
+        event:
+          "changed":
+            - service: media_player.select_source
+              data:
+                entity_id: media_player.kokken
+                source: "*{{ text }}"
+            # In sequence: Hide and push tabview object to background
+            # Hide speaker glyph & master and slave speaker text
+            # Show Artist glyph & Artist/Artist & album text
+            - service: mqtt.publish
+              data:
+                topic: hasp/t3e_02/command/jsonl
+                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
+          "up":
+            # In sequence: Hide and push tabview object to background
+            # Hide speaker glyph & master and slave speaker text
+            # Show Artist glyph & Artist/Artist & album text
+            - service: mqtt.publish
+              data:
+                topic: hasp/t3e_02/command/jsonl
+                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
+
+      # Sonos dynamic SOURCE options     
+      - obj: "p2b99"
+        properties:
+          # "options": "DR P1\nDR P3"
+          # Filter out all sources starting with '*'. These are playlists to be shown in separate tab (p2b98)
+          # Calculate source_list indexed to be chosen from returned [val] + number of playlist 'sources'
+          # can't just use returned [text] as some sources ends with '|', if their title/artist attributes are to be flipped
+          # 190822: Revised to use new sensor.sonos_favorites as source_list attribute has been deprecated
+          "options": "{{ states('sensor.hasp_sonos_source_options') }}"
+        event:
+          "changed":
+            - service: media_player.select_source
+              data:
+                entity_id: media_player.kokken
+                source: "{{ (state_attr('sensor.sonos_favorites', 'items').values() | list)[states('sensor.sonos_source_index_start') | int + val] }}"
+            # In sequence: Hide and push tabview object to background
+            # Hide speaker glyph & master and slave speaker text
+            # Show Artist glyph & Artist/Artist & album text
+            - service: mqtt.publish
+              data:
+                topic: hasp/t3e_02/command/jsonl
+                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
+          "up":
+            # In sequence: Hide and push tabview object to background
+            # Hide speaker glyph & master and slave speaker text
+            # Show Artist glyph & Artist/Artist & album text
+            - service: mqtt.publish
+              data:
+                topic: hasp/t3e_02/command/jsonl
+                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
+
+
+
+
+
+
+# Sonos support sensors - openHASP Sonos group multiple plates configuration
+sensor:
+  - platform: template
+    sensors:
+      sonos_master_friendly:
+        friendly_name: "Sonos Master Friendly"
+        value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'friendly_name') }}"
+      sonos_slaves_friendly:
+        friendly_name: "Sonos Slaves Friendly"
+        value_template: >- 
+           {% for entity_id in state_attr("group.sonos_all", "entity_id")[1:] -%}
+             {% set friendly_name = state_attr(entity_id, "friendly_name") %}
+             {%- if loop.last %}{{ friendly_name }}{% else %}{{ friendly_name }}, {% endif -%}
+           {%- endfor %}
+
+  - platform: template
+    sensors:
+      sonos_active_speakers:
+        value_template: >-
+          {{ states('sensor.sonos_master_friendly')}} {% if states('sensor.sonos_slaves_friendly') | length != 0%}{{"•"|e}} {{states('sensor.sonos_slaves_friendly')}}{% else %}{% endif %}
+
+      # Check for Playlist (no source) or source is non TuneIn stations OR non 'DR' source and non TuneIn source and media_artist present(=not paused)
+      # Split title if source starts with 'DR ' (All DR TuneIn radio stations) and keep first part of string before '/' as title       
+      # If source doesn't start with 'DR ' and media_title doesn't contain ' / ' in string, then skip the split to avoid source as title for DR radio stations when source is paused
+      # ** Swap title/artist for all other non TuneIn sources if artist is present **    
+      media_title:
+        value_template: >-
+          {% if (is_state('sensor.media_source', 'no source') and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None) or (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' and states('sensor.media_source')[0:3] != 'DR ' and states('binary_sensor.sonos_media_flip_title_artist') == 'off') %}
+            {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') }}
+          {% elif states('sensor.media_source')[0:3] == 'DR ' and state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' and state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title') != state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_')%}
+            {{ state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title').split (' / ')[0] }}
+          {% elif states('binary_sensor.sonos_media_flip_title_artist') == 'on' and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') != None %}
+            {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') }}
+          {% else %}
+            ---
+          {% endif %}
+
+      # Swap title/artist if 'source' attribute is present (radio stations) or source is non TuneIn stations
+      # Check for Playlist (no source) and split title if source starts with 'DR ' and title includes ' / ' (All DR TuneIn radio stations)
+      # Keep last part of title string after '/' as artist
+      media_artist:
+        value_template: >-
+          {% if (is_state('sensor.media_source', 'no source') and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') != None)  or (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') != None and states('sensor.media_source')[0:3] != 'DR ' and states('binary_sensor.sonos_media_flip_title_artist') == 'off') %}
+            {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') }}
+          {% elif states('sensor.media_source')[0:3] == 'DR ' and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' %}
+            {{ state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title').split (' / ')[1] }}
+          {% elif states('binary_sensor.sonos_media_flip_title_artist') == 'on' and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None %}
+            {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') }}
+          {% else %}
+            ---
+          {% endif %} 
+
+      media_album_name:
+        value_template: >-
+          {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_album_name') %}
+            {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_album_name') }}
+          {% else %}
+            --- No album name ---
+          {% endif %}
+      
+      # Get media_source from Sonos favorites list (including any trailing '|' symbol)
+      # Needed in order to match current source playing when using next/previous buttons for sources
+      # If not in favorites list, then return current data from media channel attribute
+      media_source:
+        value_template: >-
+          {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel') %}
+            {% set ns = namespace(source='') %}
+            {% for name in state_attr("sensor.sonos_favorites", "items").values() if name[0:] == state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel') or name[0:-1] == state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel') %}
+              {% set ns.source = name %}
+            {% endfor %}
+            {% if ns.source !='' %}
+              {{ ns.source }}
+            {% else %}
+              {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel') }}
+            {% endif %}
+          {% else %}
+            no source
+          {% endif %}
+
+      sonos_volume:
+        value_template: "{{ (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'volume_level')| float * 100) | int(0) }}"
+
+      sonos_active_group_speakers:
+        value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'group_members') }}"
+
+      # Combine all media players in an array and exclude current master speaker and unavailable speakers
+      # Check group.sensor_all[0] for master speaker exclude
+      sonos_available_slave_speakers:
+        value_template: >-
+          {% set ns = namespace(player="") %}
+          {% for state in states.media_player if is_device_attr(state.entity_id, 'manufacturer', 'Sonos') and states(state.entity_id) != 'unavailable' and state.entity_id != state_attr('group.sonos_all', 'entity_id')[0] %}
+          {% set ns.player = ns.player + state.entity_id %}
+          {% if not loop.last %}
+          {% set ns.player = ns.player + ',' %}
+          {% endif %}
+          {% endfor %}
+          {{ ns.player }}
+
+      sonos_repeat:
+        value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat') }}"
+
+      # Sensor for sensor.sonos_source index start for 'real' sources (skip playlists, songs etc.)
+      # 190822: Revised to use new sensor.sonos_favorites as media_player source_list attribute has been deprecated
+      sonos_source_index_start:
+        value_template: >-
+          {% set ns = namespace(counter=1) %}
+          {%for sources in state_attr('sensor.sonos_favorites','items').values() if sources[0]== "*" %}
+          {%-if not loop.last %}
+          {%set ns.counter = ns.counter + 1%}
+          {%-endif%}
+          {%-endfor%}
+          {{ ns.counter | int(0) }}
+
+      hasp_sonos_media_duration:
+        value_template: >-
+          {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_duration') != None %}
+            {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_duration') }}
+          {% else %}
+            0
+          {% endif %}
+
+      hasp_sonos_playlist_options:
+        value_template: >-
+          {%for sources in state_attr('sensor.sonos_favorites','items').values() if sources[0]=="*"%}{{sources[1:]+"\n"|e}}{%-if not loop.last%}{%-endif%}{%-endfor%}
+
+      hasp_sonos_source_options:
+        value_template: >-
+          {%for sources in state_attr('sensor.sonos_favorites','items').values() if sources[0]!="*"%}{%if sources[-1]!="|"%}{{sources+"\n"}}{%else%}{{sources[0:-1]+"\n"}}{%endif%}{%endfor%}
+
+mqtt: 
+  sensor:
+    # Used in one condition template to return Sonos volume back to the plates
+    name: "hasp_volume"
+    state_topic: "hasp/+/state/p2b20"
+    value_template: "{{ value_json.val }}"
+  
+binary_sensor:
+  - platform: template
+    sensors:
+      sonos_media_flip_title_artist:
+        value_template: "{{ 'on' if states('sensor.media_source')[-1] =='|' else 'off' }}"
+      sonos_volume_muted:
+        value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'is_volume_muted') }}"
+      sonos_shuffle:
+        value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'shuffle') }}"
+      sonos_tunein_is_source:
+        value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('tunein', ignorecase=True) }}"
