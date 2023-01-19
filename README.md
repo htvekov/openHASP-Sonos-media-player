@@ -4,11 +4,11 @@ openHASP Sonos group media player - Multiple plate configuration support
 openHASP Sonos group player - multiple plates
 documentation
 Requirements:
-- openHASP v0.6.3-dev (commit 5229384 or newer. February 2nd, 2022)
+- openHASP 0.6.4-dev 7a83367 or newer (February 2nd, 2022)
 - openHASP custom component installed
-- HA with Sonos integration installed - Tested working with HA 2021.12.10
-- Sonos speakers + active Sonos app. Tested working with S1 (legacy) ver.
-- WT32-SC01 plate or similar (my config is formatted for 320x480 res. displays)
+- HA with Sonos integration installed - Tested working with Home Assistant 2022.10.4
+- Sonos speakers + active Sonos app. Tested working with S1 (legacy) & S2 versions.
+- GS-T3E plate or similar (my config is formatted for 480x480 res. displays)
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped
 Sonos speakers from multiple plates. Plates just have to share identical object mapping
 (page/object number).
