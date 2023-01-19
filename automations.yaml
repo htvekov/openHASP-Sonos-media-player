@@ -604,7 +604,7 @@
     data:
       obj: p2b40
       image: >-
-        http://192.168.0.19:8123{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture')}}
+        http://xxx.xxx.x.xx:8123{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture')}}
       width: 480
       height: 480
     target:
