@@ -1,0 +1,11 @@
+# This group will contain all Sonos available speakers group and will be updated dynamically and upon HA start
+# Will always contain master speaker as first entity !!
+sonos_all_speakers:
+  name: sonos_all_speakers 
+
+# Define your master speaker here !!
+# This group will contain Sonos active speaker group and will be updated dynamically and upon HA start
+sonos_all:
+  name: sonos_all
+  entities:
+    - media_player.kokken
