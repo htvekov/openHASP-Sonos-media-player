@@ -1,6 +1,5 @@
 ---
 openHASP Sonos group player - multiple plates documentation v1.1
-
 DOCUMENTATION STILL WIP !!
 January 21st, 2023
 ---
