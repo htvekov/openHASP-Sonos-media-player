@@ -27,7 +27,7 @@
 {"id":27,"obj":"btn","toggle":false,"x":311,"y":271,"w":54,"h":59,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"text":"\ue457","text_color":"#C7BAA7","text_font":48}
 {"id":24,"obj":"btn","toggle":true,"x":425,"y":271,"w":54,"h":59,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"text":"\ue580","text_color":"#C7BAA7","text_color1":"#FF0000","text_font":48}
 
-{"id":95,"obj":"tabview","btn_pos":1,"y":106,"h":285,"bg_opa":0,"bg_opa1":100,"bg_opa30":180,"hidden":1}
+{"id":95,"obj":"tabview","btn_pos":1,"y":106,"h":285,"bg_opa":0,"bg_opa1":100,"bg_opa30":180,"hidden":1,"border_width":0}
 {"id":96,"obj":"tab","parentid":95,"text":"Sources"}
 {"id":97,"obj":"tab","parentid":95,"text":"Playlists"}
 {"id":94,"obj":"tab","parentid":95,"text":"Speakers"}
