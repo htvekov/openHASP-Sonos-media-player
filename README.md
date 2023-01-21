@@ -85,7 +85,10 @@ January, 2023 @htvekov
 
 
 ![Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image1.png)
+Source dropdown list
 
 ![Playlist dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image2.png)
+Playlist dropdown list
 
 ![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image3.png)
+Slave speaker selection buttons
