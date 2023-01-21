@@ -82,3 +82,10 @@ Suggestions, improvements, error reporting etc. are very welcome ! 🙂
 
 
 January, 2023 @htvekov
+
+
+![Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image1.png)
+
+![Playlist dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image2.png)
+
+![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image3.png)
