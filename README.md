@@ -85,7 +85,7 @@ January, 2023 @htvekov
 
 
 ![Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image1.png)
-#### Source dropdown list
+<sup>Source dropdown list<sup>
 
 ![Playlist dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image2.png)
 #### Playlist dropdown list
