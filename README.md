@@ -1,9 +1,8 @@
-﻿
-
-
-> Written with [StackEdit](https://stackedit.io/).
 ---
 openHASP Sonos group player - multiple plates documentation v1.1
+
+DOCUMENTATION STILL WIP !!
+January 21st, 2023
 ---
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
 
