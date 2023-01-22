@@ -1,10 +1,9 @@
-﻿
-
-
-> Written with [StackEdit](https://stackedit.io/).
 ---
-openHASP Sonos group player - multiple plates documentation v1.1
+
+# openHASP Sonos group player - multiple plates documentation v1.1
+
 ---
+
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
 
 
@@ -78,9 +77,9 @@ HA groups, config (both support sensors and CC plate config), automation and the
 
 #### openHASP design:
 
-**UI Theme:** Hasp Dark
-**Primary color:** R:222, G:113, B:16
-**Secondary color:** Default (untouched)
+- **UI Theme:** Hasp Dark
+- **Primary color:** R:222, G:113, B:16
+- **Secondary color:** Default (untouched)
 
 
 #### ’To do’ list:
@@ -94,7 +93,9 @@ Suggestions, improvements, error reporting etc. are very welcome ! 🙂
 
 January, 2023 @htvekov
 
-Below, various images showing the tab views and the pop up info overlay object:
+
+
+### Below, various images showing the tab views and the pop up info overlay object:
 
 ![Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image1.png)
 ##### Source dropdown list
