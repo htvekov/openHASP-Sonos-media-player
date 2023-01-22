@@ -609,7 +609,12 @@
       width: 480
       height: 480
     target:
+      # Enter all used openHASP plates entity_id's here.
+      # CC/HA has issues serving identical image to multiple plates.
+      # Better approach is to hack openHASP Custom Component __init__.py file, so all images are pushed to group topics
       entity_id:
+        #- openhasp.wt32_01
+        #- openhasp.wt32_02
         - openhasp.t3e_02  
   - service: mqtt.publish
     data_template:
