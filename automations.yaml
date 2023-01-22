@@ -589,6 +589,7 @@
     - platform: homeassistant
       event: start
     - platform: state
+      # Enter all used openHASP plates entity_id's here 
       entity_id:
         #- openhasp.wt32_01
         #- openhasp.wt32_02
