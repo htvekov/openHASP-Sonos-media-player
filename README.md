@@ -1,7 +1,5 @@
----
-
-# openHASP Sonos group player - multiple plates documentation v1.1
-
+﻿
+openHASP Sonos group player - multiple plates documentation v1.1
 ---
 
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
@@ -16,7 +14,8 @@
 	- v0.6.6 or newer
 - Sonos speakers + active Sonos app
 	- Tested working with S1 (legacy) and S2 version
--   GS-T3E plate or similar (This config is formatted for 480x480 res. displays)
+-   GS-T3E plate or similar
+	- Configuration is formatted for **480x480 res. displays**)
 
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
@@ -24,11 +23,19 @@ Approach was to make this as dynamic as possible. But as HA needs a hardcoded tr
 
 I also wanted to keep mqtt chatter to a minimum and have mainly used mqtt group topics and not entities for boths triggers and actions. Hence the config is primarily done as automations and not solely as Custom Component configuration. As config is quite elaborate, a multi plate Custom Component configuration for eg. five plates would also have filled more than 4000 lines !
 
-This configuration will only control all speakers volume as a global group. So no individual volume setting is possible from plates. Joining new slave speakers to the group, will also set speakers volume to match master speakers volume - before it’s joined.
+This configuration will only control all speakers volume as a global group. So no individual volume setting is possible from plates. Joining new slave speakers to the group, will also set new speakers volume to match master speakers volume - before it’s joined.
 
 Config template will split all Sonos Favourites in two groups, but will need a little help from you to determine what belongs to which group. All ‘non sources’ (playlists, songs, podcasts etc. from eg. Spotify) should be renamed (in the Sonos app or via web interface) and prefixed with an asterix ‘*’ (No extra spaces, just an asterix)
 
-Sources (radio stations) unfortunately doesn’t follow any strict rules on how to present media meta data. So some radio stations will unfortunately appear on plate with artist/title mixed up. Source in Sonos Favourites can be renamed and suffixed with an ‘|’ pipe symbol (No extra spaces, just a pipe symbol). Templates in config will seek out this pipe symbol and swap title/artist on plate display. Symbol will also be hidden in dropdown list, pop-up info etc. Special fix for handling danish national radio stations is hardcoded in templates.
+Sources (radio stations) unfortunately doesn’t follow any strict rules on how to present media meta data. So some radio stations will unfortunately appear on plate with artist/title mixed up. Source in Sonos Favourites can be renamed and suffixed with an ‘|’ pipe symbol (No extra spaces, just a pipe symbol). Templates in config will seek out this pipe symbol and swap title/artist on plate display. Symbol will also be hidden in dropdown list, pop-up info etc.
+Special fix for handling danish national radio stations is hardcoded in templates:
+- Template search is done for specific source naming to determine if image zoom is needed
+- Template search for specific string in `media_title` attribute is done as well. This is needed as quite a few danish broadcasters meta data has both title and artist combined in the `media_title` attribute - only separated with a ' / '. 
+
+Example below:
+
+    media_title: Elephant Woman / Blonde Redhead
+ 
 
 ### Keywords:
 - **Source/playlist album image** is displayed as background for the entire page. All other overlaying objects are drawn with varying opacity on top of the source/album image
@@ -93,9 +100,7 @@ Suggestions, improvements, error reporting etc. are very welcome ! 🙂
 
 January, 2023 @htvekov
 
-
-
-### Below, various images showing the tab views and the pop up info overlay object:
+Below, various images showing the tab views and the pop up info overlay object:
 
 ![Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image1.png)
 ##### Source dropdown list
