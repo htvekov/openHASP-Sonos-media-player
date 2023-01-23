@@ -27,10 +27,10 @@ This configuration will only control all speakers volume as a global group. So n
 
 Config template will split all Sonos Favourites in two groups, but will need a little help from you to determine what belongs to which group. All ‘non sources’ (playlists, songs, podcasts etc. from eg. Spotify) should be renamed (in the Sonos app or via web interface) and prefixed with an asterix ‘*’ (No extra spaces, just an asterix)
 
-Sources (radio stations) unfortunately doesn’t follow any strict rules on how to present media meta data. So some radio stations will unfortunately appear on plate with artist/title mixed up. Source in Sonos Favourites can be renamed and suffixed with an ‘|’ pipe symbol (No extra spaces, just a pipe symbol). Templates in config will seek out this pipe symbol and swap title/artist on plate display. Symbol will also be hidden in dropdown list, pop-up info etc.
+Sources (radio stations) unfortunately doesn’t follow any strict rules on how to present media meta data. So some radio stations will unfortunately appear on plate with artist/title mixed up. Source in Sonos Favourites can be renamed and suffixed with a ‘|’ pipe symbol (No extra spaces, just a pipe symbol). Templates in config will seek out this pipe symbol and swap title/artist on plate display. Symbol will also be hidden in dropdown list, pop-up info etc.
 Special fix for handling danish national radio stations is hardcoded in templates:
-- Template search is done for specific source naming to determine if image zoom is needed
-- Template search for specific string in `media_title` attribute is done as well. This is needed as quite a few danish broadcasters meta data has both title and artist combined in the `media_title` attribute - only separated with a ' / '. 
+- Template search is done for specific source naming to determine if image zoom should be applied or not. This is unfortunately needed for now, as current openHASP CC code can't handle upscale of images - only downscaling.
+- Template search for specific string in `media_title` attribute is done as well. This is needed as quite a few danish broadcasters meta data has both title and artist combined in the `media_title` attribute - only separated with a ' [SPACE]/[SPACE]'. 
 
 Example below:
 
@@ -46,7 +46,7 @@ Example below:
 - **Play/pause pop-up info** overlay (5 sec.) shows info about playlist- or source name, origin (TuneIn (somewhat irregular) and Spotify source detection) and playing status
 - **Source/playlist dropdown** list selection via image object button
 	- Press and **hold** image object for tabview to appear
-	- If you regret change, exit via either of the dropdown lists ‘arrow down’ symbol
+	- If you regret change, exit via either of the dropdown lists ‘arrow down’ symbols
 - **Slave speaker selection** on above mentioned tabview as well
 	- Already grouped slave speakers are green. Non grouped, available speakers are red
 	- Toggle buttons to join/unjoin speakers
@@ -61,11 +61,11 @@ Example below:
 - **Title/artist** are displayed
 	- **Album name** is displayed as suffix to title if it's available and not identical with title
 	- Supports **swap of title/artist** by suffixing source in Sonos Fovourites with a ‘|‘ symbol
-- Primary/active slave speakers friendly names are also displayed
+- Primary- and active slave speakers friendly names are also displayed
 	- Active speakers are displayed instead of artist, when tabview is active
 
 #### Config consists of four elements:
-HA groups, config (both support sensors and CC plate config), automation and the plate jsonl.
+HA groups, configuration (both support sensors and CC plate config), automation and the plate jsonl.
 
 ### Following needs to be done for config to work !!
 
@@ -77,7 +77,7 @@ HA groups, config (both support sensors and CC plate config), automation and the
 - Copy all page 2 objects from `sonos.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the file, so you can copy the entire page layout if you want.  
 - Search for `media_player.kokken` in both `automations.yaml` and `config.yaml` and replace with your master speakers `entity_id`. Remember also to change within the templates, where `media_player.kokken` is just a part of the full string
 - Populate `group.sonos_all` with your designated master speaker `entity_id` only. Remaining entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
-- In both `config.yaml` and `automations.yaml` files, search for `t3e_02` and replace with your plate name. If you've multiple Sonos media player plates, then add all plate entities to the automations where multiple `entity_id`'s are used to trigger object events upon plate beboot. Search for `#- openhasp.wt32_01` in `automations.yaml` in order to find current automations with multiple `entity_id` triggers
+- In both `config.yaml` and `automations.yaml` files, search for `t3e_02` and replace with your plate name. If you've multiple Sonos media player plates, then add all plate entities to the automations where multiple `entity_id`'s are used to trigger object events upon HA/plate reboot. Search for `#- openhasp.wt32_01` in `automations.yaml` in order to find current automations with multiple `entity_id` triggers
 - In `automations.yaml` search for `xxx.xxx.x.xx` and replace with your Home Assistant’s IP address
 - Merge the four needed configuration parts into your existing files. Note that I’ve used **plate page 2** for this configuration !
 - Upload the `openhasp.png` file to plate. Reboot HA and plate(s) and you’re ready ! 🙂
@@ -91,7 +91,7 @@ HA groups, config (both support sensors and CC plate config), automation and the
 
 #### ’To do’ list:
 
-- One second mandatory delay auto opening the dropdown menus are currently needed. Waiting for an openHASP fix by @fvanroie 
+- One second mandatory delay auto opening the dropdown menus is currently needed. Waiting for an openHASP fix by @fvanroie 
 - General config clean-up
 - Add Spotify / TuneIn logo’s as small png overlays
 - Populate and update plate completely on plate reconnect and/or HA restart.
@@ -100,7 +100,7 @@ Suggestions, improvements, error reporting etc. are very welcome ! 🙂
 
 January, 2023 @htvekov
 
-Below, various images showing the tab views and the pop up info overlay object:
+### Below, various images showing the tab views and the pop up info overlay object:
 
 ![Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image1.png)
 ##### Source dropdown list
