@@ -609,8 +609,7 @@
   mode: restart
   trigger:
     - platform: state
-      entity_id: media_player.kokken
-      attribute: entity_picture
+      entity_id: sensor.hasp_sonos_master_image
     - platform: homeassistant
       event: start
     - platform: state
