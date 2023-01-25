@@ -81,7 +81,8 @@
   mode: restart
   trigger:
     platform: state
-    entity_id: media_player.kokken
+    # Dynamic entity_id trigger - Sonos master speaker state 
+    entity_id: sensor.hasp_sonos_master_state
     # Need 'to: "xxx"' in order to filter out attribute changes. Only checking for state changes.
     to:
       - "playing"
@@ -448,8 +449,6 @@
 
 # Using group commands to push updates to ALL plates !
 # Remember plates have to share same object mapping (page/object number)
-# All speaker entities can be listed here as triggers.
-# condition template filters out all but first entity in group.sonos_all
 # Color code for button toggle value 'on' not set as static in jsonl on purpose.
 # This in order NOT to change color immediately on button press, but instead wait for attribute change to 'playing'
 
@@ -458,8 +457,9 @@
   mode: parallel
   trigger:
   - platform: state
+    # Dynamic entity_id trigger - Sonos master speaker state 
     entity_id:
-    - media_player.kokken # Can't be templated !
+    - sensor.hasp_sonos_master_state
     to:
     - playing
     - paused
@@ -491,8 +491,9 @@
     condition: and
     conditions:
     - condition: state
-      entity_id: media_player.kokken # Can't be templated !
-      state: 'playing'
+      # Dynamic entity_id condition - Sonos master speaker state 
+      entity_id: sensor.hasp_sonos_master_state
+      state: 'playing
   action:
     service: mqtt.publish
     data_template:
