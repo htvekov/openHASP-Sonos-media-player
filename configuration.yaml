@@ -93,7 +93,7 @@ openhasp:
           "changed":
             - service: media_player.select_source
               data:
-                entity_id: media_player.kokken
+                entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
                 source: "*{{ text }}"
             # In sequence: Hide and push tabview object to background
             # Hide speaker glyph & master and slave speaker text
@@ -124,7 +124,7 @@ openhasp:
           "changed":
             - service: media_player.select_source
               data:
-                entity_id: media_player.kokken
+                entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
                 source: "{{ (state_attr('sensor.sonos_favorites', 'items').values() | list)[states('sensor.sonos_source_index_start') | int + val] }}"
             # In sequence: Hide and push tabview object to background
             # Hide speaker glyph & master and slave speaker text
