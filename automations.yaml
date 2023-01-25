@@ -258,14 +258,24 @@
     condition: template
     value_template: "{{ now().timestamp() - as_timestamp(states.sensor.hasp_volume.last_changed) > 1 }}"
   action:
+    # Set offset for volume setting within the volume slider
+    # Specific values needed, depending on slider width
+    # 320 pixel width devices: -98 & 98
+    # 480 pixel width devices: -170 & 170
+    # sensor.sonos_volume = 60 equals value 75 on volume slider
+    # Here we push sensor.sonos_volume (trigger.to_state_state)
   - service: mqtt.publish
     data:
       topic: hasp/plates/command/p2b20.value_ofs_x
-      payload_template: >-
-        {% if trigger.to_state.state | int > 67 %}
+      payload_template: >
+        {% if trigger.to_state.state | int > 60 and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
           -170
-        {% else %}
+        {% elif trigger.to_state.state | int > 60 and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320 %}
+          -98
+        {% elif trigger.to_state.state | int <= 60 and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
           170
+        {% else %}
+          98
         {% endif %}
   - service: mqtt.publish
     data:
@@ -290,14 +300,24 @@
     - condition: template
       value_template: "{{ trigger.payload_json.event == 'up' }}"
   action:
+    # Set offset for volume setting within the volume slider
+    # Specific values needed, depending on slider width
+    # 320 pixel width devices: -98 & 98
+    # 480 pixel width devices: -170 & 170
+    # sensor.sonos_volume = 60 equals value 75 on volume slider
+    # Here we directly push slider value from plate (trigger.payload_json_val)
   - service: mqtt.publish
     data:
       topic: hasp/plates/command/p2b20.value_ofs_x
-      payload_template: >-
-        {% if trigger.payload_json.val | int > 80 %}
+      payload_template: >
+        {% if trigger.payload_json.val | int > 75 and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
           -170
-        {% else %}
+        {% elif trigger.payload_json.val | int > 75 and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320 %}
+          -98
+        {% elif trigger.payload_json.val | int <= 75 and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
           170
+        {% else %}
+          98
         {% endif %}
   - service: mqtt.publish
     data:
