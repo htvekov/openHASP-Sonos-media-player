@@ -521,7 +521,7 @@
       entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
       source: >-
         {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
-        {% set entity_id = 'media_player.kokken' %}
+        {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
         {% set current = states('sensor.media_source') %}
         {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
         {% set index = source_list.index(current) %}
@@ -533,7 +533,7 @@
       topic: hasp/plates/command/p2b99.val
       payload: >-
         {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
-        {% set entity_id = 'media_player.kokken' %}
+        {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
         {% set current = states('sensor.media_source') %}
         {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
         {% set index = source_list.index(current) %}
@@ -561,7 +561,7 @@
       entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
       source: >-
         {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
-        {% set entity_id = 'media_player.kokken' %}
+        {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
         {% set current = states('sensor.media_source') %}
         {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
         {% set index = source_list.index(current) %}
@@ -573,7 +573,7 @@
       topic: hasp/plates/command/p2b99.val
       payload: >-
         {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
-        {% set entity_id = 'media_player.kokken' %}
+        {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
         {% set current = states('sensor.media_source') %}
         {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
         {% set index = source_list.index(current) %}
