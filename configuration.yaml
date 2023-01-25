@@ -281,6 +281,9 @@ sensor:
       hasp_sonos_source_options:
         value_template: >-
           {%for sources in state_attr('sensor.sonos_favorites','items').values() if sources[0]!="*"%}{%if sources[-1]!="|"%}{{sources+"\n"}}{%else%}{{sources[0:-1]+"\n"}}{%endif%}{%endfor%}
+      
+      hasp_sonos_devices:
+        value_template: "{{ state_attr('group.hasp_sonos_devices', 'entity_id')[0] }}"
 
 mqtt: 
   sensor:
