@@ -260,6 +260,9 @@ sensor:
           {%-endfor%}
           {{ ns.counter | int(0) }}
 
+      hasp_sonos_master_state:
+        value_template: "{{ states(state_attr('group.sonos_all', 'entity_id')[0]) }}"
+
       hasp_sonos_media_duration:
         value_template: >-
           {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_duration') != None %}
