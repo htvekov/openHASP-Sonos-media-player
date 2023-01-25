@@ -262,6 +262,9 @@ sensor:
 
       hasp_sonos_master_state:
         value_template: "{{ states(state_attr('group.sonos_all', 'entity_id')[0]) }}"
+        
+      hasp_sonos_master_image:
+        value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture') }}"
 
       hasp_sonos_media_duration:
         value_template: >-
