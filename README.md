@@ -3,7 +3,9 @@
 
 ### Revision:
 -	**1.2** (25-01-23)
-Removed all hardcoded media player entities from automations- and config yaml files. Designated master speaker `entity_id` now only need to be entered in `group.sonos_all` - that's it.
+Removed all hardcoded media player entities from automations- and config yaml files. Designated master speaker `entity_id` now only need to be entered in `group.sonos_all`
+Cleaned up the hardcoded openHASP plate entities as well. Some nine entities are left in total, where only five of these are actually needed.
+Configuration prepared to run either multiple 320x480 or 480x480 res. devices without alterations (besides the device entity_id)
 
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
 
@@ -18,7 +20,8 @@ Removed all hardcoded media player entities from automations- and config yaml fi
 - Sonos speakers + active Sonos app
 	- Tested working with S1 (legacy) and S2 version
 -   GS-T3E plate or similar
-	- Configuration is formatted for **480x480 res. displays**)
+	- Configuration can dynamically handle **both** 320x480 and 480x480 res. displays)
+	- Actual plate config for 320x480 not ready yet
 
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
@@ -58,7 +61,7 @@ Example below:
 - Automation will update progress bar every 5 seconds while playing non sources. Progress bar is shown between artist and title objects
 - **Play/pause** button will play/pause (Sonos don’t use stop function. Only when idle)
 - **Volume mute** button will mute/unmute whole group of speakers
-- **Volume slider** will change volume setting for the whole group of speakers. Volume level indicated on the right - inside the slider. At high volume (above 80 on plate) indicator will be placed on the left side instead
+- **Volume slider** will change volume setting for the whole group of speakers. Volume level indicated on the right - inside the slider. At high volume (above 75 on plate) indicator will be placed on the left side instead
 	- **Bezier algorithm** has been implemented. This makes it much easier to adjust slider at **low level volume** compared to a 'standard' linear slider
 		- Slider value 10, equals volume 5. Slider value 20, equals volume 11. Sliver value 30, equals volume 18 etc. 
 - **Title/artist** are displayed
@@ -78,8 +81,17 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 
 **Changes in configuration files:**
 - Copy all page 2 objects from `sonos.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the file, so you can copy the entire page layout if you want.  
-- Populate `group.sonos_all` with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
-- In both `config.yaml` and `automations.yaml` files, search for `t3e_02` and replace with your plate name. If you've multiple Sonos media player plates, then add all plate entities to the automations where multiple `entity_id`'s are used to trigger object events upon HA/plate reboot. Search for `#- openhasp.wt32_01` in `automations.yaml` in order to find current automations with multiple `entity_id` triggers
+- Populate `group.sonos_all` in `groups.yaml` file with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
+- Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** openHASP plate `entity_id` (group prepared for future use)
+- In both `config.yaml` and `automations.yaml` files, search for `t3e_02` and replace with **your** plate name.
+Currently there are nine hardcoded entities left in the `config.yaml` file
+	-	The custom component configuration slug entry
+	-	Four entries in the custom component plate configuration
+	-	Additional four entries in the page 0 objects (not mandatory)
+	- No entries in the remaining `config.yaml` file
+In the `automations.yaml` there are four hardcoded entities left in Home Assistant restart automations (not mandatory)
+
+If you've multiple Sonos media player plates, then add all plate entities to the automations where multiple `entity_id`'s are used to trigger object events upon HA/plate reboot. Search for `#- openhasp.wt32_01` in `automations.yaml` in order to find current automations with multiple `entity_id` triggers. 
 - In `automations.yaml` search for `xxx.xxx.x.xx` and replace with your Home Assistant’s IP address
 - Merge the four needed configuration parts into your existing files. Note that I’ve used **plate page 2** for this configuration !
 - Upload the `openhasp.png` file to plate. Reboot HA and plate(s) and you’re ready ! 🙂
