@@ -622,7 +622,8 @@
     data:
       entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
 
-
+# Dynamic support for both 320- and 480 pixel width devices
+# Target entity_id is now also dynamic and templated.
 # Special DR 'hack' implemented to show 'unlisted' TuneIn DR stations with zoomed image
 - id: openhasp_push_image_to_plate
   alias: openHASP push image to plate
@@ -642,35 +643,31 @@
   condition:
     - condition: template
       value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture') != None }}"
-  action:
-  - delay: '00:00:00'
-
   - service: openhasp.push_image
     data:
       obj: p2b40
       image: >-
         http://xxx.xxx.x.xx:8123{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture')}}
-      width: 480
-      height: 480
+      width: "{{ state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') }}"
+      height: "{{ state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') }}"
     target:
-      # Enter all used openHASP plates entity_id's here.
-      # CC/HA has issues serving identical image to multiple plates.
-      # Better approach is to hack openHASP Custom Component __init__.py file, so all images are pushed to group topics
-      entity_id:
-        #- openhasp.wt32_01
-        #- openhasp.wt32_02
-        - openhasp.t3e_02  
+      # If using multiple plates, then enter all plate entities here and remove the entity_id template.
+      # But as CC/HA has issues serving identical image to multiple plates a better approach is to hack
+      # openHASP Custom Component __init__.py file, so all images are pushed to group topic instead
+      entity_id: "{{ states('sensor.hasp_sonos_devices') }}"
   - service: mqtt.publish
     data_template:
       topic: hasp/plates/command
       payload: >-
-        {% if not is_state('sensor.media_source', 'no source') and (states('binary_sensor.sonos_tunein_is_source') == 'on' or states('sensor.media_source')[0:4] != 'DR P') %}
+        {% if not is_state('sensor.media_source', 'no source') and (states('binary_sensor.sonos_tunein_is_source') == 'on' or states('sensor.media_source')[0:4] != 'DR P') and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320 %}
+          {"page":2,"id":40,"zoom":274,"x":10,"y":10}
+        {% elif not is_state('sensor.media_source', 'no source') and (states('binary_sensor.sonos_tunein_is_source') == 'on' or states('sensor.media_source')[0:4] != 'DR P') and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
           {"page":2,"id":40,"zoom":410,"x":90,"y":90}
         {% else %}
           {"page":2,"id":40,"zoom":256,"x":0,"y":0}
         {% endif %}
-
-
+        
+        
 # Open tabs, push source dropdown list to a specific plate and show active speakers on all plates
 # Issue hidden:0 command to the specific plate only that triggered event 
 # Starts on first tab every time opened for all plates.
