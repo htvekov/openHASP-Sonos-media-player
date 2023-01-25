@@ -19,8 +19,8 @@ Configuration prepared to run either multiple 320x480 or 480x480 res. devices wi
 	- v0.6.6 or newer
 - Sonos speakers + active Sonos app
 	- Tested working with S1 (legacy) and S2 version
--   GS-T3E plate or similar
-	- Configuration can dynamically handle **both** 320x480 and 480x480 res. displays)
+-   GS-T3E / WT32-SC01 (plus) or similar
+	- Configuration can dynamically handle **both** 320x480 or 480x480 res. displays)
 	- Actual plate config for 320x480 not ready yet
 
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
