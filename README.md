@@ -1,6 +1,9 @@
 ﻿
-openHASP Sonos group player - multiple plates documentation v1.1
----
+# openHASP Sonos group player - multiple plates documentation v1.2
+
+### Revision:
+-	**1.2** (25-01-23)
+Removed all hardcoded media player entities from automations- and config yaml files. Designated master speaker `entity_id` now only need to be entered in `group.sonos_all` - that's it.
 
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
 
@@ -19,7 +22,7 @@ openHASP Sonos group player - multiple plates documentation v1.1
 
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
-Approach was to make this as dynamic as possible. But as HA needs a hardcoded trigger entity (templating not allowed), and to make things less complicated, a designated permanent master speaker will have to be chosen and hardcoded for the config to work.
+Approach was to make this as dynamic as possible. But in order to make things less complicated, a designated permanent master speaker will have to be chosen and hardcoded for the config to work.
 
 I also wanted to keep mqtt chatter to a minimum and have mainly used mqtt group topics and not entities for boths triggers and actions. Hence the config is primarily done as automations and not solely as Custom Component configuration. As config is quite elaborate, a multi plate Custom Component configuration for eg. five plates would also have filled more than 4000 lines !
 
@@ -39,7 +42,7 @@ Example below:
 
 ### Keywords:
 - **Source/playlist album image** is displayed as background for the entire page. All other overlaying objects are drawn with varying opacity on top of the source/album image
-	- **Zoom** function used to e.g. resize TuneIn’s source images, as they are only 145 x 145 pixels max.
+	- **Zoom** function used to e.g. resize TuneIn’s source images, as many are 300x300 pixels
  - **Next/previous buttons**
 	 - **In active playlist:** Select next/previous song
 	- **When source is selected:** Skip to next/previous source in list. Will also skip to first source, if at last source or vice versa (loop through)
@@ -75,8 +78,7 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 
 **Changes in configuration files:**
 - Copy all page 2 objects from `sonos.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the file, so you can copy the entire page layout if you want.  
-- Search for `media_player.kokken` in both `automations.yaml` and `config.yaml` and replace with your master speakers `entity_id`. Remember also to change within the templates, where `media_player.kokken` is just a part of the full string
-- Populate `group.sonos_all` with your designated master speaker `entity_id` only. Remaining entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
+- Populate `group.sonos_all` with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
 - In both `config.yaml` and `automations.yaml` files, search for `t3e_02` and replace with your plate name. If you've multiple Sonos media player plates, then add all plate entities to the automations where multiple `entity_id`'s are used to trigger object events upon HA/plate reboot. Search for `#- openhasp.wt32_01` in `automations.yaml` in order to find current automations with multiple `entity_id` triggers
 - In `automations.yaml` search for `xxx.xxx.x.xx` and replace with your Home Assistant’s IP address
 - Merge the four needed configuration parts into your existing files. Note that I’ve used **plate page 2** for this configuration !
