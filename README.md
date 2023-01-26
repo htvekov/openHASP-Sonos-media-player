@@ -21,7 +21,7 @@ Configuration prepared to run either multiple 320x480 or 480x480 res. devices wi
 	- Tested working with S1 (legacy) and S2 version
 -   GS-T3E / WT32-SC01 (plus) or similar
 	- Configuration can dynamically handle **both** 320x480 or 480x480 res. displays)
-	- Actual plate config for 320x480 not ready yet
+	- Actual plate config for 320x480 res. (portrait) not ready yet
 
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
@@ -83,17 +83,28 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 - Copy all page 2 objects from `sonos.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the file, so you can copy the entire page layout if you want.  
 - Populate `group.sonos_all` in `groups.yaml` file with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
 - Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** openHASP plate `entity_id` (group prepared for future use)
-- In both `config.yaml` and `automations.yaml` files, search for `t3e_02` and replace with **your** plate name.
+- In both `config.yaml` and `automations.yaml` files, search for `t3e_02` (my plate name) and replace with **your** plate name.
 Currently there are nine hardcoded entities left in the `config.yaml` file
 	-	The custom component configuration slug entry
 	-	Four entries in the custom component plate configuration
+		- These are needed to be kept unique for each plate configuration as they control local events on the plate being operated
 	-	Additional four entries in the page 0 objects (not mandatory)
-	- No entries in the remaining `config.yaml` file
-In the `automations.yaml` there are four hardcoded entities left in Home Assistant restart automations (not mandatory)
+	- No entries left in the remaining `config.yaml` file
+- In the `automations.yaml` there are four hardcoded entities left in Home Assistant restart automations (not mandatory)
 
 If you've multiple Sonos media player plates, then add all plate entities to the automations where multiple `entity_id`'s are used to trigger object events upon HA/plate reboot. Search for `#- openhasp.wt32_01` in `automations.yaml` in order to find current automations with multiple `entity_id` triggers. 
-- In `automations.yaml` search for `xxx.xxx.x.xx` and replace with your Home Assistant’s IP address
-- Merge the four needed configuration parts into your existing files. Note that I’ve used **plate page 2** for this configuration !
+
+
+**Changes in Home Assistant:**
+
+- Local HA IP address sensor is needed for this configuration.
+	- Please add [this](https://www.home-assistant.io/integrations/local_ip/) simple integration in HA to expose needed `sensor.local_ip`
+	If you prefer to use hardcoded static IP address instead, then search for `{{states('sensor.local_ip')}}` in `automations.yaml` and replace with your HA local IP address
+
+**General:**
+
+- Merge the four needed configuration parts into your existing files.
+	- Note that I’ve used **plate page 2** for this configuration !
 - Upload the `openhasp.png` file to plate. Reboot HA and plate(s) and you’re ready ! 🙂
 
 #### openHASP design:
