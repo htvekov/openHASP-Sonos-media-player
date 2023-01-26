@@ -18,7 +18,7 @@
 {"id":14,"obj":"label","x":35,"y":44,"w":440,"h":29,"bg_opa":0,"bg_color":"#000000","mode":"loop","text":"Title","text_color":"#C7BAA7","text_font":24}
 {"id":26,"obj":"label","x":35,"y":74,"w":440,"h":29,"bg_opa":0,"bg_color":"#000000","hidden":1,"mode":"loop","text":"Sonos Master - Sonos slaves","text_color":"#FFAC00","text_font":24}
 {"id":15,"obj":"label","x":35,"y":74,"w":440,"h":29,"bg_opa":0,"bg_color":"#000000","mode":"loop","text":"Artist","text_color":"#C7BAA7","text_font":24}
-{"id":41,"obj":"bar","enabled":false,"x":35,"y":73,"w":440,"h":4,"min":0,"max":100,"bg_opa":100,"border_opa":0,"pad_top":0,"pad_bottom":0,"pad_left":0,"pad_right":0}
+{"id":41,"obj":"bar","enabled":false,"x":35,"y":73,"w":440,"h":4,"min":0,"max":100,"bg_color10":"#FFAC00","bg_opa":100,"border_opa":0,"pad_top":0,"pad_bottom":0,"pad_left":0,"pad_right":0}
 
 {"id":16,"obj":"btn","x":311,"y":107,"w":83,"h":79,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue4ae","text_color":"#C7BAA7","text_font":64}
 {"id":17,"obj":"btn","x":311,"y":189,"w":168,"h":79,"bg_opa":150,"toggle":true,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue40a","text_color":"#C7BAA7","text_font":64}
