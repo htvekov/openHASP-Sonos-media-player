@@ -643,17 +643,19 @@
   condition:
     - condition: template
       value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture') != None }}"
+    # Push image with dynamic width/height from openHASP device sensors tftWidth attribute and
+    # using local HA IP address from HA integration - Internal IP  
   - service: openhasp.push_image
     data:
       obj: p2b40
       image: >-
-        http://xxx.xxx.x.xx:8123{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture')}}
+        http://{{states('sensor.local_ip')}}:8123{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture')}}
       width: "{{ state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') }}"
       height: "{{ state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') }}"
+    # If using multiple plates, then enter all plate entities here and remove the entity_id template.
+    # But as CC/HA has issues serving identical image to multiple plates, a better approach is to hack
+    # openHASP Custom Component __init__.py file, so all images are pushed to group topic instead
     target:
-      # If using multiple plates, then enter all plate entities here and remove the entity_id template.
-      # But as CC/HA has issues serving identical image to multiple plates a better approach is to hack
-      # openHASP Custom Component __init__.py file, so all images are pushed to group topic instead
       entity_id: "{{ states('sensor.hasp_sonos_devices') }}"
   - service: mqtt.publish
     data_template:
