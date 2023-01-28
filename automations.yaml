@@ -93,17 +93,24 @@
       - condition: template
         value_template: "{{ states('sensor.media_source') != 'unavailable' }}"
   action:
+    # Dynamic positioning of the pop up window
   - service: mqtt.publish
     data:
       topic: hasp/plates/command
       payload: >-
-        {% if states('sensor.media_source') != 'no source' %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"align":"center","mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'TuneIn\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('tunein', ignorecase=True) else 'Source\n' }} {{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel')}}\n {{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist') != None %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'Spotify playlist\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }} {{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist')}}\n {{states('sensor.hasp_sonos_master_state')}}"}
-        {% else %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'Spotify song\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }} {{states('sensor.hasp_sonos_master_state')}}"}
-        {% endif %}
+        {% if states('sensor.media_source') != 'no source' and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
+          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"align":"center","mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'TuneIn\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('tunein', ignorecase=True) else 'Source\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
+        {% elif states('sensor.media_source') != 'no source' and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320 %} 
+          {"obj":"label","id":90,"hidden":0,"page":2,"x":10,"y":145,"w":188,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"align":"center","mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'TuneIn\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('tunein', ignorecase=True) else 'Source\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
+        {% elif state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist') != None and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480  %}
+          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'Spotify playlist\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
+        {% elif state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist') != None and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320  %} 
+          {"obj":"label","id":90,"hidden":0,"page":2,"x":10,"y":160,"w":188,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":28,"text":"{{ 'Spotify playlist\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
+        {% elif state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
+          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'Spotify song\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{states('sensor.hasp_sonos_master_state')}}"}
+        {% else %}  
+          {"obj":"label","id":90,"hidden":0,"page":2,"x":10,"y":177,"w":188,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":28,"text":"{{ 'Spotify song\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{states('sensor.hasp_sonos_master_state')}}"}
+        {% endif %} 
   - delay:
       seconds: 5
   - service: mqtt.publish
@@ -698,7 +705,7 @@
   
   # TEMP NEEDED DELAY AS OPENHASP HAS ISSUES UNHIDING PARENT TAB AND OPENING DROPDOWN MENU RIGHT AFTER !
   - delay:
-      seconds: 1
+      milliseconds: 250
   # TEMP NEEDED DELAY AS OPENHASP HAS ISSUES UNHIDING PARENT TAB AND OPENING DROPDOWN MENU RIGHT AFTER !
   
   - service: mqtt.publish
@@ -735,7 +742,7 @@
 
   # TEMP NEEDED DELAY AS OPENHASP HAS ISSUES UNHIDING PARENT TAB AND OPENING DROPDOWN MENU RIGHT AFTER !
   - delay:
-      seconds: 1
+      milliseconds: 250
   # TEMP NEEDED DELAY AS OPENHASP HAS ISSUES UNHIDING PARENT TAB AND OPENING DROPDOWN MENU RIGHT AFTER !
 
   - service: mqtt.publish
