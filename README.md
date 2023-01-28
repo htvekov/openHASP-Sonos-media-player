@@ -8,7 +8,7 @@ Cleaned up the hardcoded openHASP plate entities as well. Some nine entities are
 Configuration prepared to run either multiple 320x480 or 480x480 res. devices without further alterations (besides the device entity_id)
 
 -	**1.3** (28-01-23)
-Added revised layout for 320x480 resolution devices
+Added revised layout (**portrait** mode) for 320x480 resolution devices
 
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
 
@@ -24,8 +24,7 @@ Added revised layout for 320x480 resolution devices
 	- Tested working with S1 (legacy) and S2 version
 -   GS-T3E / WT32-SC01 (plus) / Sunton ESP3248S035 or similar devices **with** PSram
 	- Configuration can dynamically handle **both** multiple 320x480- **or** 480x480 resolution displays. Don't mix devices with different resolutions. Config can't cope with that without alterations
-	- Plate config for 320x480 res. is in **portrait** mode
-
+	
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
 Approach was to make this as dynamic as possible. But in order to make things less complicated, a designated permanent master speaker will have to be chosen and hardcoded for the config to work.
@@ -93,8 +92,8 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 **Changes in configuration files:**
 - Copy all page 2 objects from either `gs_t3e.jsonl` or `wt32_01_plus.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the files, so you can copy the entire page layout if you want.
 	- **480x480 pixel:** use `gs_t3e.jsonl` file
-	- **320x480 pixel:** use `wt32_01_plus.jsonl` file
-- Populate `group.sonos_all` in `groups.yaml` file with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
+	- **320x480 pixel portrait mode:** use `wt32_01_plus.jsonl` file
+- Populate `group.sonos_all` in `groups.yaml` file with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` should be left untouched. It will be populated as well upon HA start and dynamically upon speaker availability change
 - Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** openHASP plate `entity_id` (group prepared for future use)
 - In both `config.yaml` and `automations.yaml` files, search for `t3e_02` (my plate name) and replace with **your** plate name.
 Currently there are nine hardcoded entities left in the `config.yaml` file
