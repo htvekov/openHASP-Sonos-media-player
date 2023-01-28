@@ -152,4 +152,15 @@ January, 2023 @htvekov
 ![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image4.png)
 ##### Pop up info overlay object
 
+![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image6_320x480.png)
+##### 320 x 480 res. layout
+
+![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image7_320x480.png)
+##### Source dropdown list
+
+![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image8_320x480.png)
+##### Slave speaker selection buttons
+
+
+
 
