@@ -1,11 +1,14 @@
 ﻿
-# openHASP Sonos group player - multiple plates documentation v1.2
+# openHASP Sonos group player - multiple plates documentation v1.3
 
 ### Revision:
 -	**1.2** (25-01-23)
 Removed all hardcoded media player entities from automations- and config yaml files. Designated master speaker `entity_id` now only need to be entered in `group.sonos_all`
 Cleaned up the hardcoded openHASP plate entities as well. Some nine entities are left in total, where only five of these are actually needed.
-Configuration prepared to run either multiple 320x480 or 480x480 res. devices without alterations (besides the device entity_id)
+Configuration prepared to run either multiple 320x480 or 480x480 res. devices without further alterations (besides the device entity_id)
+
+-	**1.3** (28-01-23)
+Added revised layout for 320x480 resolution devices
 
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
 
@@ -19,9 +22,9 @@ Configuration prepared to run either multiple 320x480 or 480x480 res. devices wi
 	- v0.6.6 or newer
 - Sonos speakers + active Sonos app
 	- Tested working with S1 (legacy) and S2 version
--   GS-T3E / WT32-SC01 (plus) or similar
-	- Configuration can dynamically handle **both** 320x480 or 480x480 res. displays)
-	- Actual plate config for 320x480 res. (portrait) not ready yet
+-   GS-T3E / WT32-SC01 (plus) / Sunton ESP3248S035 or similar devices **with** PSram
+	- Configuration can dynamically handle **both** multiple 320x480- **or** 480x480 resolution displays. Don't mix devices with different resolutions. Config can't cope with that without alterations
+	- Plate config for 320x480 res. is in **portrait** mode
 
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
@@ -63,7 +66,7 @@ Example below:
 - **Volume mute** button will mute/unmute whole group of speakers
 - **Volume slider** will change volume setting for the whole group of speakers. Volume level indicated on the right - inside the slider. At high volume (above 75 on plate) indicator will be placed on the left side instead
 	- **Bezier algorithm** has been implemented. This makes it much easier to adjust slider at **low level volume** compared to a 'standard' linear slider
-		- Slider value 10, equals volume 5. Slider value 20, equals volume 11. Sliver value 30, equals volume 18 etc. 
+		- Slider value 10, equals volume 5. Slider value 20, equals volume 11. Slider value 30, equals volume 18 etc. 
 - **Title/artist** are displayed
 	- **Album name** is displayed as suffix to title if it's available and not identical with title
 	- Supports **swap of title/artist** by suffixing source in Sonos Fovourites with a ‘|‘ symbol
@@ -76,11 +79,21 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 ### Following needs to be done for config to work !!
 
 **Changes in Sonos app:**
-- **Mandatory:** Revise your Sonos Favourites so all playlists, songs, podcast etc. are prefixed with an asterix ‘*’ character. Config will **need** this as key to sort favourites into sources / non sources groups
-- **Optional:** Revise Sonos sources that need swap of media title/artist as well, by adding a pipe symbol ‘|’ as suffix to source name in Sonos Favourites
+- **Mandatory:** Revise your Sonos Favourites so all playlists, songs, podcast etc. are **prefixed** with an asterix **‘*’** character. Config will **need** this as key to sort favourites into sources / non sources groups
+- **Optional:** Revise Sonos sources that need media title/artist to be swapped, by adding a pipe symbol **‘|’** as **suffix** to source name in Sonos Favourites
+
+**Examples:**
+
+    FV:2/44: '*New Music Friday Denmark'
+    FV:2/47: '*The Ultimate Hit Mix'
+    FV:2/49: Classic FM
+    FV:2/54: Classic Rock|
+    FV:2/63: DR Nyheder
 
 **Changes in configuration files:**
-- Copy all page 2 objects from `sonos.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the file, so you can copy the entire page layout if you want.  
+- Copy all page 2 objects from either `gs_t3e.jsonl` or `wt32_01_plus.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the files, so you can copy the entire page layout if you want.
+	- **480x480 pixel:** use `gs_t3e.jsonl` file
+	- **320x480 pixel:** use `wt32_01_plus.jsonl` file
 - Populate `group.sonos_all` in `groups.yaml` file with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` will also be populated as well upon HA start and dynamically upon speaker availability change
 - Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** openHASP plate `entity_id` (group prepared for future use)
 - In both `config.yaml` and `automations.yaml` files, search for `t3e_02` (my plate name) and replace with **your** plate name.
@@ -97,9 +110,10 @@ If you've multiple Sonos media player plates, then add all plate entities to the
 
 **Changes in Home Assistant:**
 
-- Local HA IP address sensor is needed for this configuration.
+- The Sonos integration has the favorites sensor disabled by default. You need to **enable** `sensor.sonos_favorites` for the configuration to work. Check [HA Sonos integration](https://www.home-assistant.io/integrations/sonos/) to find details on this
+- Local HA IP address sensor is needed for this configuration
 	- Please add [this](https://www.home-assistant.io/integrations/local_ip/) simple integration in HA to expose needed `sensor.local_ip`
-	If you prefer to use hardcoded static IP address instead, then search for `{{states('sensor.local_ip')}}` in `automations.yaml` and replace with your HA local IP address
+	- If you prefer to use hardcoded static IP address instead, then search for `{{states('sensor.local_ip')}}` in `automations.yaml` and replace with **your** HA local IP address
 
 **General:**
 
@@ -116,7 +130,7 @@ If you've multiple Sonos media player plates, then add all plate entities to the
 
 #### ’To do’ list:
 
-- One second mandatory delay auto opening the dropdown menus is currently needed. Waiting for an openHASP fix by @fvanroie 
+- 250 millisecond mandatory delay auto opening the dropdown menus is currently needed. Waiting for an openHASP fix by @fvanroie 
 - General config clean-up
 - Add Spotify / TuneIn logo’s as small png overlays
 - Populate and update plate completely on plate reconnect and/or HA restart.
