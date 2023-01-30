@@ -1,14 +1,17 @@
 ﻿
-# openHASP Sonos group player - multiple plates documentation v1.3
+# openHASP Sonos group player - multiple plates documentation v1.02
 
 ### Revision:
--	**1.2** (25-01-23)
+-	**1.00** (25-01-23)
 Removed all hardcoded media player entities from automations- and config yaml files. Designated master speaker `entity_id` now only need to be entered in `group.sonos_all`
 Cleaned up the hardcoded openHASP plate entities as well. Some nine entities are left in total, where only five of these are actually needed.
 Configuration prepared to run either multiple 320x480 or 480x480 res. devices without further alterations (besides the device entity_id)
 
--	**1.3** (28-01-23)
+-	**1.01** (28-01-23)
 Added revised layout (**portrait** mode) for 320x480 resolution devices
+
+- **1.02** (30-01-23)
+	Removed `zoom` service calls as Custom Component now support image upscaling. Requires openHASP Custom Component from `main` branch commit `b2ed186` or newer
 
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image.png)
 
@@ -37,17 +40,15 @@ Config template will split all Sonos Favourites in two groups, but will need a l
 
 Sources (radio stations) unfortunately doesn’t follow any strict rules on how to present media meta data. So some radio stations will unfortunately appear on plate with artist/title mixed up. Source in Sonos Favourites can be renamed and suffixed with a ‘|’ pipe symbol (No extra spaces, just a pipe symbol). Templates in config will seek out this pipe symbol and swap title/artist on plate display. Symbol will also be hidden in dropdown list, pop-up info etc.
 Special fix for handling danish national radio stations is hardcoded in templates:
-- Template search is done for specific source naming to determine if image zoom should be applied or not. This is unfortunately needed for now, as current openHASP CC code can't handle upscale of images - only downscaling.
+
 - Template search for specific string in `media_title` attribute is done as well. This is needed as quite a few danish broadcasters meta data has both title and artist combined in the `media_title` attribute - only separated with a ' [SPACE]/[SPACE]'. 
 
 Example below:
 
     media_title: Elephant Woman / Blonde Redhead
  
-
 ### Keywords:
 - **Source/playlist album image** is displayed as background for the entire page. All other overlaying objects are drawn with varying opacity on top of the source/album image
-	- **Zoom** function used to e.g. resize TuneIn’s source images, as many are 300x300 pixels
  - **Next/previous buttons**
 	 - **In active playlist:** Select next/previous song
 	- **When source is selected:** Skip to next/previous source in list. Will also skip to first source, if at last source or vice versa (loop through)
