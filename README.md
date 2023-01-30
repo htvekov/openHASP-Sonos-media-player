@@ -22,7 +22,7 @@ Added revised layout (**portrait** mode) for 320x480 resolution devices
 - Home Assistant with Sonos integration installed
 	- Tested working with Home Assistant 2022.10.4
 - openHASP Custom Component installed in HA
-	- v0.6.6 or newer
+	- `main` branch commit `b2ed186` or newer required (January 30th, 2023)
 - Sonos speakers + active Sonos app
 	- Tested working with S1 (legacy) and S2 version
 -   GS-T3E / WT32-SC01 (plus) / Sunton ESP3248S035 or similar devices **with** PSram
