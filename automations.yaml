@@ -686,13 +686,11 @@
   action:
   - service: mqtt.publish
     data:
-      topic: >-
-        hasp/{{trigger.topic.split('/')[1]}}/command
-      payload: >-
-        {"page":2,"id":95,"to_front":1,"hidden":0,"val":0}
+      topic: "hasp/{{trigger.topic.split('/')[1]}}/command/jsonl"
+      payload: "{'page':2,'id':95,'to_front':1,'hidden':0,'val':0}"
   - service: mqtt.publish
     data:
-      topic: hasp/plates/command/jsonl
+      topic: "hasp/{{trigger.topic.split('/')[1]}}/command/jsonl"
       payload: "{'page':2,'id':22,'hidden':1}{'page':2,'id':15,'hidden':1}{'page':2,'id':23,'hidden':0}{'page':2,'id':26,'hidden':0}"
   
   # TEMP NEEDED DELAY AS OPENHASP HAS ISSUES UNHIDING PARENT TAB AND OPENING DROPDOWN MENU RIGHT AFTER !
