@@ -376,20 +376,28 @@
 # Push available slave speakers to plate with updated status (red or green)
 # Press slave speaker button to toggle speakers join/unjoin status
 # On 320 & 480 width devices, choose Sources or Playlists from tab and press 'arrow down' to end and close tab
-# 050223: Revised trigger from plate objects to slave speakers group entity_id change
+# 050223: Revised trigger from plate objects to slave speakers group/all available speakers entity_id change
+# 050223: Added update to primary speaker object (p2b89)
 - id: openhasp_sonos_slave_speakers_to_plate
   alias: openHASP Sonos slave speakers to plate
   mode: restart
   trigger:
     - platform: state
-      entity_id: group.sonos_all
+      entity_id:
+      - group.sonos_all
+      - group.sonos_all_speakers
       attribute: entity_id
   action:
     - service: mqtt.publish
       data:
-        topic: hasp/plates/command
+        topic: hasp/plates/command/jsonl
         payload_template: >
-          jsonl {"page":2,"id":93,"options":{% set ns=namespace(counter="") %}{% for sources in state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}{% set friendly = "#008000 " + state_attr((sources), 'friendly_name') + '#' if sources in state_attr('group.sonos_all', 'entity_id') else "#FF0000 " + state_attr((sources), 'friendly_name') + '#' %}{% set ns.counter = ns.counter + '\"'+ friendly +'"' %}{% if not loop.last %}{% set ns.counter = ns.counter + ',' + '"\\n"' + ',' %}{% endif %}{% endfor %}[{{ns.counter}}]}
+          {"page":2,"id":89,"text":"{{ state_attr(state_attr('group.sonos_all_speakers', 'entity_id')[0], 'friendly_name') }}"}
+    - service: mqtt.publish
+      data:
+        topic: hasp/plates/command/jsonl
+        payload_template: >
+          {"page":2,"id":93,"options":{% set ns=namespace(counter="") %}{% for sources in state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}{% set friendly = "#008000 " + state_attr((sources), 'friendly_name') + '#' if sources in state_attr('group.sonos_all', 'entity_id') else "#FF0000 " + state_attr((sources), 'friendly_name') + '#' %}{% set ns.counter = ns.counter + '\"'+ friendly +'"' %}{% if not loop.last %}{% set ns.counter = ns.counter + ',' + '"\\n"' + ',' %}{% endif %}{% endfor %}[{{ns.counter}}]}
  
 
 - id: openhasp_sonos_slave_speakers_unjoin
