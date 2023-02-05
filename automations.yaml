@@ -373,48 +373,24 @@
       - group.sonos_all
 
 
-# Push possible slave speakers to plate with updated choosen status (red or green)
+# Push available slave speakers to plate with updated status (red or green)
 # Press slave speaker button to toggle speakers join/unjoin status
-# Initial delay for 1 second needed for Sonos to join and update HA state
-# Updates plate twice (one second apart) to get all updated if HA/Sonos is to slow to update in 1 second
-# Choose Sources or Playlists from tab and press 'arrow down' to end and close tab
+# On 320 & 480 width devides, choose Sources or Playlists from tab and press 'arrow down' to end and close tab
+# 050223: Revised trigger from plate objects to slave speakers group entity_id change
 - id: openhasp_sonos_slave_speakers_to_plate
   alias: openHASP Sonos slave speakers to plate
   mode: restart
   trigger:
-    - platform: mqtt
-      topic: hasp/+/state/p2b95
-    - platform: mqtt
-      topic: hasp/+/state/p2b93
-  condition:
-    condition: or
-    conditions:
-    #- condition: template
-    #  value_template: "{{ trigger.payload_json.event == 'changed' }}"
-
-    # New test trigger instead of above for p2b95 changes (tab view selector)
-    # Now test for val = 2 which is the speakers tab
-    # This will unfortunately collide with the p2b95, if more than 2 slave speakers are used
-    # and end up in a double trigger sending four identical mqtt messages to all plate (not ideal)
-    - condition: template
-      value_template: "{{ trigger.payload_json.val == 2 }}"
-    - condition: template
-      value_template: "{{ trigger.payload_json.event == 'down' }}"
+    - platform: state
+      entity_id: group.sonos_all
+      attribute: entity_id
   action:
-    - delay: '00:00:01'
     - service: mqtt.publish
       data:
         topic: hasp/plates/command
         payload_template: >
           jsonl {"page":2,"id":93,"options":{% set ns=namespace(counter="") %}{% for sources in state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}{% set friendly = "#008000 " + state_attr((sources), 'friendly_name') + '#' if sources in state_attr('group.sonos_all', 'entity_id') else "#FF0000 " + state_attr((sources), 'friendly_name') + '#' %}{% set ns.counter = ns.counter + '\"'+ friendly +'"' %}{% if not loop.last %}{% set ns.counter = ns.counter + ',' + '"\\n"' + ',' %}{% endif %}{% endfor %}[{{ns.counter}}]}
-    # Repeat once to ensure data is valid, if HA didn't manage to update sate within a second      
-    - delay: '00:00:01'
-    - service: mqtt.publish
-      data:
-        topic: hasp/plates/command
-        payload_template: >
-          jsonl {"page":2,"id":93,"options":{% set ns=namespace(counter="") %}{% for sources in state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}{% set friendly = "#008000 " + state_attr((sources), 'friendly_name') + '#' if sources in state_attr('group.sonos_all', 'entity_id') else "#FF0000 " + state_attr((sources), 'friendly_name') + '#' %}{% set ns.counter = ns.counter + '\"'+ friendly +'"' %}{% if not loop.last %}{% set ns.counter = ns.counter + ',' + '"\\n"' + ',' %}{% endif %}{% endfor %}[{{ns.counter}}]}
-
+ 
 
 - id: openhasp_sonos_slave_speakers_unjoin
   alias: openHASP Sonos slave speakers unjoin
