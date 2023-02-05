@@ -375,7 +375,7 @@
 
 # Push available slave speakers to plate with updated status (red or green)
 # Press slave speaker button to toggle speakers join/unjoin status
-# On 320 & 480 width devides, choose Sources or Playlists from tab and press 'arrow down' to end and close tab
+# On 320 & 480 width devices, choose Sources or Playlists from tab and press 'arrow down' to end and close tab
 # 050223: Revised trigger from plate objects to slave speakers group entity_id change
 - id: openhasp_sonos_slave_speakers_to_plate
   alias: openHASP Sonos slave speakers to plate
