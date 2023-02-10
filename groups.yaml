@@ -10,9 +10,10 @@ sonos_all:
   entities:
     - media_player.kokken
 
-# Define your openHASP plate entities here !!
-# With current config only first entity is used
+# Define your openHASP plates entities here !!
 hasp_sonos_devices:
   name: hasp_sonos_devices
   entities:
     - openhasp.t3e_02
+    #- openhasp.sunton_01
+    #- openhasp.wt32_01_plus
