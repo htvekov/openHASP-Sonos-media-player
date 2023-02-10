@@ -623,7 +623,8 @@
     data:
       entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
 
-# Dynamic support for both 320- and 480 pixel width devices
+
+# Dynamic support for both 320, 480 and 800 pixel width devices
 # Target entity_id is now also dynamic and templated.
 # Zoom service removed as push_image now supports upscaling of images if fitscreen argument is set in data field
 - id: openhasp_push_image_to_plate
@@ -647,21 +648,40 @@
   condition:
     - condition: template
       value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture') != None }}"
-    # Push image with dynamic width/height from openHASP device sensors tftWidth attribute and
-    # using local HA IP address from HA integration - Internal IP  
-  - service: openhasp.push_image
-    data:
-      obj: p2b40
-      image: >-
-        http://{{states('sensor.local_ip')}}:8123{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture')}}
-      width: "{{ state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') }}"
-      height: "{{ state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') }}"
-      fitscreen: 1
-    # If using multiple plates, then enter all plate entities here and remove the entity_id template.
-    # But as CC/HA has issues serving identical image to multiple plates, a better approach is to hack
-    # openHASP Custom Component __init__.py file, so all images are pushed to group topic instead
-    target:
-      entity_id: "{{ states('sensor.hasp_sonos_devices') }}"
+    # Push images for each openHASP entity in group.hasp_sonos_devices
+    # with dynamic width/height from each device sensors tftWidth attribute
+    # using local HA IP address from HA integration - Internal IP
+    # Automation now supports full dynamic mix of different image sizes
+    # Width/height for Sunton 7" device is set to 355
+    # Image width/height for all other devices will be identical with device width
+  action:
+  - repeat:
+      for_each: >
+        {{ state_attr("group.hasp_sonos_devices", "entity_id") | list }}
+      sequence:
+        - variables:
+            w: "{{ state_attr((repeat.item), 'tftWidth') }}"
+        - service: openhasp.push_image
+          data:
+            obj: p2b40
+            image: "http://{{states('sensor.local_ip')}}:8123{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture')}}"
+            fitscreen: 1
+            width: >
+              {% if w == 800 %}
+                355
+              {% else %}
+                {{ w }}
+              {% endif %}
+            height: >
+              {% if w == 800 %}
+                355
+              {% else %}
+                {{ w }}
+              {% endif %}
+          target:
+            entity_id: >
+              {{ repeat.item }}
+              
               
 # Open tabs, push source dropdown list to a specific plate and show active speakers on all plates
 # Issue hidden:0 command to the specific plate only that triggered event 
