@@ -468,11 +468,105 @@
           {{ entity[val] }} 
 
 
+- id: openhasp_sonos_change_master_speaker_btnmtrx
+  alias: openHASP Sonos change master speaker btnmtrx
+  mode: single
+  trigger:
+  - platform: mqtt
+    topic: hasp/+/state/p2b89
+  - platform: mqtt
+    topic: hasp/+/state/p2b95
+  # Check for either Sunton 7" device master speaker button 'hold' action or
+  # tab menu 'Master' value (object p2b95) on all other devices
+  condition:
+    condition: template
+    value_template: "{{ trigger.payload_json.event == 'hold' or (trigger.payload_json.val == 3 and trigger.topic.split('/')[-1] == 'p2b95') }}"
+  # Create option list for master speaker button matrix
+  # Skip first entity_id in group.sonos_all_speakers as this entry is always current master speaker
+  variables:
+    sas: >
+      {% set ns=namespace(counter="") %}
+        {% for sources in state_attr("group.sonos_all_speakers", "entity_id")[1:] %}
+          {% set friendly = "#0000FF " + state_attr((sources), "friendly_name") + "#" if sources in state_attr("group.sonos_all_speakers", "entity_id") else "#FF0000 " + state_attr((sources), "friendly_name") + "#" %}
+          {% set ns.counter = ns.counter + '\"'+ friendly +'"' %}
+            {% if not loop.last %}
+              {% set ns.counter = ns.counter + "," + '"\\n"' + "," %}
+            {% endif %}
+        {% endfor %}
+      {{ ns.counter }}
+  action:
+  - service: mqtt.publish
+    data:
+      topic: "hasp/{{trigger.topic.split('/')[1]}}/command/jsonl"
+      payload: >
+        {% if state_attr(("openhasp." + trigger.topic.split('/')[1]), "tftWidth") == 800 %}
+          {"page":2,"id":93,"hidden":1}{"page":2,"id":88,"hidden":0,"options":[{{sas}},"\n","#FFFFFF E X I T#"]}
+        {% else %}
+          {"page":2,"id":88,"hidden":0,"options":[{{sas}}]}
+        {% endif %}
+
+
+- id: openhasp_sonos_choose_new_master_speaker_group
+  alias: openHASP Sonos choose new master speaker group
+  mode: single
+  trigger:
+  - platform: mqtt
+    topic: hasp/+/state/p2b88
+  condition:
+    condition: template
+    value_template: "{{ trigger.payload_json.event == 'down' }}"
+  # Store chosen speaker in variable
+  # Skip entity_id[0] in search = current master speaker (not included in button matrix)
+  variables:
+    # Store chosen speaker in variable. Data will be lost before automation has finished
+    # Skip entity_id[0] in search = current master speaker (not included in button matrix)
+    cs: >
+      {{ state_attr('group.sonos_all_speakers','entity_id')[trigger.payload_json.val + 1] }}
+    # Check if chosen speaker already is part of existing group and store it
+    # Data will be lost before automation has finished
+    in_group: >
+      {% set ns = namespace(ig = "not_in_group") %}
+        {% for entity_id in state_attr("group.sonos_all", "entity_id") %}
+          {% if entity_id == cs %}
+            {% set ns.ig = entity_id %}
+          {% endif %}
+        {% endfor %}
+      {{ true if ns.ig != "not_in_group" else false }}
+  action:
+  # If device is a 5 or 7" Sunton, then hide master speaker button matrix and unhide slave speaker button matrix
+  # Any other devices just 'emulate' an 'arrow up' press in a dropdown menu and exit tab menu completely
+  - service: mqtt.publish
+    data:
+      topic: "hasp/{{trigger.topic.split('/')[1]}}/command/jsonl"
+      payload: >
+        {% if state_attr(("openhasp." + trigger.topic.split('/')[1]), "tftWidth") == 800 %}
+          {"page":2,"id":88,"hidden":1}{"page":2,"id":93,"hidden":0}
+        {% else %}
+          {'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}
+        {% endif %}
+  # Choose new chosen master speaker (group)
+  - service: group.set
+    data_template:
+      object_id: sonos_all
+      entities: >
+        {{ state_attr("group.sonos_all_speakers","entity_id")[trigger.payload_json.val + 1]}}
+  # If chosen speaker is not 'E X I T' and chosen speaker already is part of existing group
+  # then unjoin speaker from current group 
+  - if:
+    - condition: template
+      value_template: >
+        {{ in_group and trigger.payload_json.text != "E X I T" }}
+    then:
+    - service: media_player.unjoin
+      data_template:
+        entity_id: "{{ cs }}"
+    else:
+
+
 # Using group commands to push updates to ALL plates !
 # Remember plates have to share same object mapping (page/object number)
 # Color code for button toggle value 'on' not set as static in jsonl on purpose.
 # This in order NOT to change color immediately on button press, but instead wait for attribute change to 'playing'
-
 - id: openhasp_sonos_set_play/pause/idle_icon
   alias: openHASP Sonos set play/pause/idle icon
   mode: parallel
