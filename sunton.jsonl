@@ -1,0 +1,48 @@
+{"page":0,"comment":"---------- All Pages ----------"}
+{"id":24,"action":{"down":"page 6"},"obj":"btn","x":000,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ued3e","text_color":"#978B7D","text_font":64}
+{"id":25,"action":{"down":"page 1"},"obj":"btn","x":115,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ufa74","text_color":"#978B7D","text_font":64}
+{"id":01,"action":{"down":"page prev"},"obj":"btn","x":230,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue141","text_color":"#978B7D","text_font":64}
+{"id":02,"action":{"down":"page back"},"obj":"btn","x":345,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue2dc","text_color":"#978B7D","text_font":64}
+{"id":03,"action":{"down":"page next"},"obj":"btn","x":460,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue142","text_color":"#978B7D","text_font":64}
+{"id":26,"action":{"down":"page 2"},"obj":"btn","x":575,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue4c3","text_color":"#978B7D","text_font":64}
+{"id":27,"action":{"down":"page 4"},"obj":"btn","x":690,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue595","text_color":"#978B7D","text_font":64}
+
+{"id":04,"obj":"roller","enabled":false,"click":false,"x":0,"y":-1,"w":800,"text_line_space":10,"bg_opa1":180,"bg_opa2":0,"border_width1":0,"val":0,"rows":1,"options":"ENERGY\nSONOS\nOFFICE\nWEATHER\nFAMILY\nNORDPOOL","text_font":24,"bg_color1":"#000000","text_color1":"#FFFFFF","bg_color":"#000000","text_color":"#000000","border_side":0,"radius":0}
+{"id":05,"obj":"label","enabled":false,"x":707,"y":5,"h":30,"w":90,"bg_opa":0,"text":"\ue50f 00.0°C","align":"right","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":24}
+{"id":06,"obj":"label","enabled":false,"x":3,"y":5,"h":30,"w":62,"bg_opa":0,"text":"00:00","align":"left","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":24}
+{"id":07,"obj":"label","enabled":false,"x":60,"y":2,"w":30,"h":20,"bg_opa":0,"text":"\ue5a9","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":16}
+{"id":08,"obj":"label","enabled":false,"x":75,"y":2,"w":30,"h":20,"bg_opa":0,"text":"\ue004","bg_color":"#2C3E50","text_color":"green","text_font":16}
+
+
+{"page":2,"bg_grad_color":"#d58518","bg_color":"grey","border_width":0,"comment":"---------- Page 2 ----------"}
+{"id":39,"obj":"obj","enabled":true,"x":0,"y":43,"w":355,"h":355,"bg_opa":180,"clip_corner":1,"border_post":1,"border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10}
+{"id":40,"obj":"img","enabled":true,"x":0,"y":0,"w":355,"h":355,"parentid":39,"auto_size":1,"src":"L:/openhasp.png"}
+
+{"id":13,"obj":"obj","x":358,"y":43,"w":442,"h":64,"enabled":false,"bg_opa":100,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10}
+{"id":14,"obj":"label","enabled":false,"x":35,"y":-02,"w":399,"h":32,"parentid":13,"bg_opa":0,"bg_color":"#000000","mode":"loop","text":"Title","text_color":"#C7BAA7","text_font":24}
+{"id":26,"obj":"label","enabled":false,"x":35,"y":30,"w":399,"h":32,"parentid":13,"bg_opa":0,"bg_color":"#000000","hidden":1,"mode":"loop","text":"Sonos Master - Sonos slaves","text_color":"#FFAC00","text_font":24}
+{"id":15,"obj":"label","enabled":false,"x":35,"y":30,"w":399,"h":32,"parentid":13,"bg_opa":0,"bg_color":"#000000","mode":"loop","text":"Artist","text_color":"#C7BAA7","text_font":24}
+{"id":41,"obj":"bar","enabled":false,"x":35,"y":30,"w":385,"h":4,"parentid":13,"min":0,"max":100,"bg_color10":"#FFAC00","bg_opa":100,"border_opa":0,"pad_top":0,"pad_bottom":0,"pad_left":0,"pad_right":0}
+
+{"id":16,"obj":"btn","x":632,"y":110,"w":83,"h":79,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue4ae","text_color":"#C7BAA7","text_font":64}
+{"id":17,"obj":"btn","x":632,"y":192,"w":168,"h":79,"bg_opa":150,"toggle":true,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue40a","text_color":"#C7BAA7","text_font":64}
+{"id":18,"obj":"btn","x":718,"y":110,"w":82,"h":79,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue4ad","text_color":"#C7BAA7","text_font":64}
+{"id":25,"obj":"btn","toggle":true,"x":689,"y":274,"w":54,"h":59,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"text":"\ue49e","text_color":"#C7BAA7","text_font":48}
+{"id":27,"obj":"btn","toggle":false,"x":632,"y":274,"w":54,"h":59,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"text":"\ue457","text_color":"#C7BAA7","text_font":48}
+{"id":24,"obj":"btn","toggle":true,"x":746,"y":274,"w":54,"h":59,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"text":"\ue580","text_color":"#C7BAA7","text_color1":"#FF0000","text_font":48}
+
+{"id":95,"obj":"tabview","x":0,"y":0,"h":355,"w":355,"parentid":39,"text_font":32,"btn_pos":1,"bg_opa":0,"bg_opa1":100,"bg_opa30":180,"hidden":1,"border_width":0}
+{"id":96,"obj":"tab","parentid":95,"text":"Sources"}
+{"id":97,"obj":"tab","parentid":95,"text":"Playlists"}
+{"id":93,"obj":"btnmatrix","x":358,"y":192,"h":141,"w":260,"bg_opa":100,"bg_opa40":255,"toggle":0,"one_check":0,"text_font":32,"options":["#FF0000 Spk. 1#","#0000FF Spk. 2#","\n","#FFFF00 Spk. 3#","#0000FF Spk. 4#","\n","#FF0000 Spk. 5#","#0000FF Spk. 6#"],"border_width":2,"border_color":"#FFAC00"}
+{"id":88,"obj":"btnmatrix","x":358,"y":192,"h":141,"w":260,"hidden":1,"bg_opa":100,"bg_opa40":255,"toggle":0,"one_check":0,"text_font":28,"options":["Exit"],"border_width":4,"border_color":"#FFAC00"}
+{"id":89,"obj":"btn","x":358,"y":110,"h":79,"w":260,"toggle":false,"bg_opa":100,"bg_color":"#d58518","border_color":"#FFAC00","border_width":4,"radius":10,"radius1":10,"radius2":10,"text":"MASTER","align":"center","text_color":"#FFAC00","text_font":42,"value_str":"\ue30b\n\ue4c3","value_font":32,"value_line_space":-8,"value_ofs_y":0,"value_ofs_x":-108,"value_color":"#FFAC00"}
+{"id":90,"obj":"label","hidden":1,"shadow_width":50,"enabled":true,"text_color":"#C7BAA7","bg_opa":180,"x":45,"y":170,"w":220,"h":100,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10}
+{"id":98,"obj":"dropdown","parentid":97,"x":020,"y":005,"w":315,"h":50,"hidden":0,"show_selected":1,"direction":0,"max_height":225,"bg_color":"#000000","border_color":"#C7BAA7","border_width":0,"text_color":"#FFAC00","text_font":24,"options":"","bg_opa":180,"open":1,"bg_opa40":100,"close":0}
+{"id":99,"obj":"dropdown","parentid":96,"x":020,"y":005,"w":315,"h":50,"hidden":0,"show_selected":1,"direction":0,"max_height":225,"bg_color":"#000000","border_color":"#C7BAA7","border_width":0,"text_color":"#FFAC00","text_font":24,"options":"","bg_opa":180,"open":1,"bg_opa40":100,"close":0}
+{"id":20,"obj":"slider","x":385,"y":350,"w":395,"h":35,"ext_click_v":10,"bg_opa":100,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":5,"radius1":50,"radius2":5,"value_font":32,"value_color":"#FFFFFF","value_opa":255,"value_ofs_x":170,"value_ofs_y":-2,"min":0,"max":100,"val":0,"bg_color1":"#FFAC00","border_width1":2,"border_color1":"#FFAC00"}
+{"id":21,"obj":"label","x":2,"y":000,"w":33,"h":32,"parentid":13,"click":0,"bg_opa":0,"bg_color":"#000000","border_color":"#C7BAA7","border_width":0,"text":"\ue75a","text_color":"#FFAC00","text_font":24}
+{"id":22,"obj":"label","x":2,"y":029,"w":33,"h":32,"parentid":13,"click":0,"bg_opa":0,"bg_color":"#000000","border_color":"#C7BAA7","border_width":0,"text":"\ue004","text_color":"#FFAC00","text_font":24}
+{"id":23,"obj":"label","x":2,"y":029,"w":33,"h":32,"parentid":13,"click":0,"hidden":1,"bg_opa":0,"bg_color":"#000000","border_color":"#C7BAA7","border_width":0,"text":"\ue4c3","text_color":"#FFAC00","text_font":24}
+
+
