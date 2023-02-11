@@ -9,9 +9,7 @@
 {"id":08,"obj":"label","enabled":false,"x":75,"y":2,"w":30,"h":45,"bg_opa":0,"text":"\ue004","bg_color":"#2C3E50","text_color":"green","text_font":16}
 
 
-
-
-{"page":2,"comment":"---------- Page 2 ----------"}
+{"page":2,"comment":"---------- Page 2 ----------NOTE: OBJ: 89 is used in automation for Sunton devices !! "}
 {"id":39,"obj":"obj","enabled":true,"x":0,"y":45,"w":320,"h":355,"bg_opa":100,"border_width":0}
 {"id":40,"obj":"img","enabled":true,"x":0,"y":0,"w":320,"h":320,"shadow_color":"#de8510","shadow_opa":150,"shadow_width":80,"shadow_spread":20,"parentid":39,"auto_size":0,"src":"L:/openhasp.png"}
 {"id":13,"obj":"obj","x":0,"y":46,"w":320,"h":61,"enabled":false,"bg_opa":100,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10}
@@ -27,12 +25,14 @@
 {"id":27,"obj":"btn","toggle":false,"x":208,"y":253,"w":54,"h":59,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"text":"\ue457","text_color":"#C7BAA7","text_font":48}
 {"id":24,"obj":"btn","toggle":true,"x":001,"y":337,"w":40,"h":40,"ext_click_v":20,"bg_opa":150,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"text":"\ue580","text_color":"#C7BAA7","text_color1":"#FF0000","text_font":32}
 
-{"id":95,"obj":"tabview","btn_pos":1,"y":108,"h":285,"bg_opa":0,"bg_opa1":100,"bg_opa30":180,"hidden":1,"border_width":0}
+{"id":95,"obj":"tabview","btn_pos":1,"y":108,"h":285,"text_font":20,"bg_opa":0,"bg_opa1":100,"bg_opa30":180,"hidden":1,"border_width":0}
 {"id":96,"obj":"tab","parentid":95,"text":"Sources"}
 {"id":97,"obj":"tab","parentid":95,"text":"Playlists"}
-{"id":94,"obj":"tab","parentid":95,"text":"Speakers"}
+{"id":94,"obj":"tab","parentid":95,"text":"Slaves"}
+{"id":92,"obj":"tab","parentid":95,"text":"Master"}
 {"id":93,"obj":"btnmatrix","parentid":94,"x":116,"y":005,"w":195,"h":160,"bg_opa":180,"bg_opa40":180,"toggle":0,"one_check":0,"text_font":32,"options":["#FF0000 Speaker 1#","#0000FF Speaker 2#","\n","#FFFF00 Speaker 3#"]}
-
+{"id":88,"obj":"btnmatrix","parentid":92,"x":116,"y":005,"h":160,"w":195,"bg_opa":180,"bg_opa40":180,"toggle":0,"one_check":0,"text_font":32,"options":["Exit"]}
+ 
 {"id":90,"obj":"label","hidden":1,"shadow_width":50,"enabled":true,"text_color":"#C7BAA7","bg_opa":180,"x":45,"y":170,"w":220,"h":100,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10}
 {"id":98,"obj":"dropdown","parentid":97,"x":060,"y":005,"w":250,"h":50,"hidden":0,"show_selected":1,"direction":0,"max_height":170,"bg_color":"#000000","border_color":"#C7BAA7","border_width":0,"text_color":"#FFAC00","text_font":24,"options":"","bg_opa":180,"open":1,"bg_opa40":100,"close":0}
 {"id":99,"obj":"dropdown","parentid":96,"x":005,"y":005,"w":250,"h":50,"hidden":0,"show_selected":1,"direction":0,"max_height":170,"bg_color":"#000000","border_color":"#C7BAA7","border_width":0,"text_color":"#FFAC00","text_font":24,"options":"","bg_opa":180,"open":1,"bg_opa40":100,"close":0}
