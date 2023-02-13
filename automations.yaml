@@ -272,40 +272,46 @@
   condition:
     condition: template
     value_template: "{{ now().timestamp() - as_timestamp(states.sensor.hasp_volume.last_changed) > 1 }}"
+  # Set offset for volume setting within the volume slider
+  # Specific values needed, depending on slider width
+  # 320 pixel width devices: -98 & 98
+  # 480/800 pixel width devices: -170 & 170
+  # sensor.sonos_volume = 60 equals value 75 on volume slider
+  # Here we push sensor.sonos_volume (trigger.to_state_state)
+  # Revised 20230213: Dynamic, individual value_ofs_x pushed to each plate
   action:
-    # Set offset for volume setting within the volume slider
-    # Specific values needed, depending on slider width
-    # 320 pixel width devices: -98 & 98
-    # 480/800 pixel width devices: -170 & 170
-    # sensor.sonos_volume = 60 equals value 75 on volume slider
-    # Here we push sensor.sonos_volume (trigger.to_state_state)
+  - repeat:
+      for_each: >
+        {{ state_attr("group.hasp_sonos_devices", "entity_id") | list }}
+      sequence:
+        - variables:
+            w: "{{ state_attr((repeat.item), 'tftWidth') }}"
+        - service: mqtt.publish
+          data:
+            topic: "hasp/{{ state_attr((repeat.item), 'node') }}/command/p2b20.value_ofs_x"
+            payload: >
+              {% if trigger.to_state.state | int > 60 and (w == 480 or w == 800) %}
+                -170
+              {% elif trigger.to_state.state | int > 60 and w == 320 %}
+                -98
+              {% elif trigger.to_state.state | int <= 60 and (w == 480 or w == 800) %}
+                170
+              {% else %}
+                98
+              {% endif %}
+  - variables:
+      vol: "{{ ((trigger.to_state.state | int * 2) / (1 + (trigger.to_state.state | int / 100))) | int }}"
   - service: mqtt.publish
     data:
-      topic: hasp/plates/command/p2b20.value_ofs_x
-      payload_template: >
-        {% set tft = state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') %}
-        {% if trigger.to_state.state | int > 60 and (tft == 480 or tft == 800) %}
-          -170
-        {% elif trigger.to_state.state | int > 60 and tft == 320 %}
-          -98
-        {% elif trigger.to_state.state | int <= 60 and (tft == 480 or tft == 800) %}
-          170
-        {% else %}
-          98
-        {% endif %}
-  - service: mqtt.publish
-    data:
-      topic: hasp/plates/command/p2b20.val
-      payload_template: '{{ ((trigger.to_state.state | int * 2) / (1 + (trigger.to_state.state | int / 100))) | int }}'
-  - service: mqtt.publish
-    data:
-      topic: hasp/plates/command/p2b20.value_str
-      payload_template: '{{ ((trigger.to_state.state | int * 2) / (1 + (trigger.to_state.state | int / 100))) | int }}'
+      topic: hasp/plates/command/jsonl
+      payload: >
+        {"page":2,"id":20,"val":{{ vol }}}{"page":2,"id":20,"value_str":{{ vol }}}
 
 
-# Push volume slider value to all plates upon slider release.
+# Push volume slider value to all plates upon slider release
 # Value pushed and shared is from the active plates operating slider - NOT HA's volume sensors state value
-# value_str is not updated on the other plates. Only upon local slider changes. So we have to update value_str as well.
+# value_str is not updated on the other plates. Only upon local slider changes. So we have to update value_str as well
+# Revised 20230213: Dynamic, individual value_ofs_x pushed to each plate
 - id: openhasp_sonos_push_volume_slider_value_to_all_plates
   alias: openHASP Sonos push volume slider value to all plates
   mode: restart
@@ -315,35 +321,37 @@
   condition:
     - condition: template
       value_template: "{{ trigger.payload_json.event == 'up' }}"
+  # Set offset for volume setting within the volume slider
+  # Specific values needed, depending on slider width
+  # 320 pixel width devices: -98 & 98
+  # 480/800 pixel width devices: -170 & 170
+  # sensor.sonos_volume = 60 equals value 75 on volume slider
+  # Here we directly push slider value from plate (trigger.payload_json_val)
   action:
-    # Set offset for volume setting within the volume slider
-    # Specific values needed, depending on slider width
-    # 320 pixel width devices: -98 & 98
-    # 480/800 pixel width devices: -170 & 170
-    # sensor.sonos_volume = 60 equals value 75 on volume slider
-    # Here we directly push slider value from plate (trigger.payload_json_val)
+  - repeat:
+      for_each: >
+        {{ state_attr("group.hasp_sonos_devices", "entity_id") | list }}
+      sequence:
+        - variables:
+            w: "{{ state_attr((repeat.item), 'tftWidth') }}"
+        - service: mqtt.publish
+          data:
+            topic: "hasp/{{ state_attr((repeat.item), 'node') }}/command/p2b20.value_ofs_x"
+            payload: >
+              {% if trigger.payload_json.val | int > 75 and (w == 480 or w == 800) %}
+                -170
+              {% elif trigger.payload_json.val | int > 75 and w == 320 %}
+                -98
+              {% elif trigger.payload_json.val | int <= 75 and (w == 480 or w == 800) %}
+                170
+              {% else %}
+                98
+              {% endif %}
   - service: mqtt.publish
     data:
-      topic: hasp/plates/command/p2b20.value_ofs_x
-      payload_template: >
-        {% set tft = state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') %}
-        {% if trigger.payload_json.val | int > 75 and (tft == 480 or tft == 800) %}
-          -170
-        {% elif trigger.payload_json.val | int > 75 and tft == 320 %}
-          -98
-        {% elif trigger.payload_json.val | int <= 75 and (tft == 480 or tft == 800) %}
-          170
-        {% else %}
-          98
-        {% endif %}  
-  - service: mqtt.publish
-    data:
-      topic: hasp/plates/command/p2b20.val
-      payload_template: "{{ trigger.payload_json.val }}"
-  - service: mqtt.publish
-    data:
-      topic: hasp/plates/command/p2b20.value_str
-      payload_template: "{{ trigger.payload_json.val }}"
+      topic: hasp/plates/command/jsonl
+      payload: >
+        {"page":2,"id":20,"val":{{ trigger.payload_json.val }}}{"page":2,"id":20,"value_str":{{ trigger.payload_json.val }}}
 
 
 # Listen for changes from ALL plates (+ in topic)  !
