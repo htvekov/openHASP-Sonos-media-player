@@ -177,9 +177,9 @@
       topic: hasp/plates/command/jsonl
       payload: >
         {% if is_state('binary_sensor.sonos_shuffle', 'on') %}
-          {"page":2,"id":25,"val":1,"text_color1":"#FFAC00","text":"\ue49d"}
+          {"page":2,"id":25,"val":1,"text":"\ue49d"}
         {% else %}
-          {"page":2,"id":25,"val":0,"text_color":"#C7BAA7","text":"\ue49e"}
+          {"page":2,"id":25,"val":0,"text":"\ue49e"}
         {% endif %}
 
 
