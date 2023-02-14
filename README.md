@@ -191,19 +191,19 @@ February, 2023 @htvekov
 ##### WT32_SC01 Plus Slave speaker selection buttons
 
 ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_01.png)
-##### 480 x 800 res. layout
+##### Sunton 480 x 800 res. layout
 
 ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_02.png)
-##### Pop up info overlay object
+##### Sunton Pop up info overlay object
 
 ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_03.png)
-##### Source dropdown list
+##### Sunton Source dropdown list
 
 ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_04.png)
-##### Master speaker button and Master speaker button matrix
+##### Sunton Master speaker button and Master speaker button matrix
 
 ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_05.png)
-##### Pop up info overlay object
+##### Sunton Pop up info overlay object
 
 
 
