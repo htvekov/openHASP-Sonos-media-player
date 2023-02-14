@@ -1,7 +1,7 @@
 ﻿
 # openHASP Sonos group player - multiple plates documentation v1.03
 
-![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image.png)
+![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image.png) ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image6_320x480.png)
 
 ### Revision:
 - **1.03** (2023-02-11)
