@@ -31,11 +31,11 @@ Configuration prepared to run either multiple 320x480 or 480x480 res. devices wi
 	- Setup with both S1 & S2 devices will work as well. But S1 devices can't join S2 groups and vice versa 
 -   GS-T3E / WT32-SC01 (plus) / Sunton ESP32-48S035 / Sunton ESP32-8048S050 / Sunton ESP32-8048S070 or similar devices **with** PSram
 	- Configuration can dynamically handle **both** multiple 320x480, 480x480 or 480x800 resolution displays
-	- Devices with different resolutions can even be mixed, as configuration is almost fully dynamic now. Currently only pop-up info and volume slider value are not yet fully dynamic. They are only dynamic in that sense that first plate device entry in group determines position on display for all device types.
+	- Devices with different resolutions can even be mixed, as configuration is almost fully dynamic now. Currently only pop-up info is not yet fully dynamic. Pop-up's are at present only dynamic in that sense that first plate device entry in group determines position on display for all device types.
 	
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
-Approach was to make this setup as dynamic as possible. The original design with hardcoded master speaker has now been replaced with a fully dynamic speaker configuration. Now it's possible to both change master- and slave speakers as well 
+Approach was to make this setup as dynamic as possible. The original design with hardcoded master speaker has now been abandoned and replaced with a fully dynamic group speaker configuration. Now it's possible to both change master- and slave speakers and jump between all active groups or single speakers by changing the Master speaker. 
 
 I also wanted to keep mqtt chatter to a minimum and have mainly used mqtt group topics and not entities for boths triggers and actions. Hence the config is primarily done as automations and not solely as Custom Component configuration. As config is quite elaborate, a multi plate Custom Component configuration for eg. five plates would also have filled more than 4000 lines !
 
@@ -60,7 +60,7 @@ Example below:
 - **Play/pause pop-up info** overlay (5 sec.) shows info about playlist- or source name, origin (TuneIn (somewhat irregular) and Spotify source detection) and playing status
 - **Source/playlist dropdown** list selection via image object button
 	- Press and **hold** image object for tabview to appear
-	- If you regret change, exit via either of the dropdown lists ‘arrow down’ symbols
+	- If you regret to change, then exit via either of the dropdown lists ‘arrow down’ symbols
 - **Master speaker selection**
 	- ***480 x 800 resolution. layout***
 		- Press and **hold** Master speaker button until new button matrix appears
@@ -70,7 +70,7 @@ Example below:
 	-  ***320 x 480 and 480 x 480 resolution layouts***
 		-  Found on **tabview** mentioned under Source/playlist dropdown
 		- All available Sonos speakers are listed in **blue** (current master speaker excluded from list)
-		- After selection, will the entire dropdown menu and tabview be closed automatically
+		- After selection, the entire dropdown menu and tabview will be closed automatically
 
 - **Slave speaker selection**  
 	- ***480 x 800 resolution. layout***
@@ -88,18 +88,18 @@ Example below:
 		- **Toggle** buttons to join/unjoin speakers
 		- **Exit** selection tab via either of the dropdown lists **‘arrows’**.
 
-- **Shuffle/repeat** buttons and **progress bar** are disabled playing sources
+- **Shuffle/repeat** buttons and **progress bar** are **disabled** playing sources
 - Automation will update progress bar every 5 seconds while playing non sources. Progress bar is shown between artist and title objects
 - **Play/pause** button will play/pause (Sonos don’t use stop function. Only when idle)
 - **Volume mute** button will mute/unmute whole group of speakers
-- **Volume slider** will change volume setting for the whole group of speakers. Volume level indicated on the right - inside the slider. At high volume (above 75 on plate) indicator will be placed on the left side instead
+- **Volume slider** will change volume setting for the whole group of speakers. Volume level indicated on the right - inside the slider. At high volume (above 75 on plate = 'real' volume at 60) indicator will be placed on the left side instead
 	- **Bezier algorithm** has been implemented. This makes it much easier to adjust slider at **low level volume** compared to a 'standard' linear slider
 		- Slider value 10, equals volume 5. Slider value 20, equals volume 11. Slider value 30, equals volume 18 etc. 
 - **Title/artist** are displayed
 	- **Album name** is displayed as suffix to title if it's available and not identical with title
 	- Supports **swap of title/artist** by suffixing source in Sonos Fovourites with a ‘|‘ symbol
 - Primary- and active slave speakers friendly names are also displayed
-	- Active speakers are displayed instead of artist, when tabview is active
+	- Active speakers are displayed instead of artist, when **tabview is active**
 	- On 480 x 800 resolution devices both master- and slave speakers are displayed at all times
 
 #### Config consists of four elements:
@@ -124,19 +124,15 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 	- **480 x 800 pixels:** Use `sunton_jsonl` file 
 	- **480 x 480 pixels:** use `gs_t3e.jsonl` file
 	- **320 x 480 pixels (portrait mode):** use `wt32_01_plus.jsonl` file
-- Populate `group.sonos_all` in `groups.yaml` file with **your** designated master speaker `entity_id` only. Remaining speaker entities will be populated dynamically. `group.sonos_all_speakers` should be left untouched. It will be populated as well upon HA start and dynamically upon speaker availability change
-- Populate `group.hasp_sonos_devices`in `groups.yaml` file with all **your** openHASP plate `entity_id`'s
+- Populate `group.sonos_all` in `groups.yaml` file with **your** typical master speaker `entity_id` only. Remaining speaker entities will be populated dynamically `group.sonos_all_speakers` should be left untouched and unpopulated. It will be populated upon HA start and dynamically upon speaker availability change
+- Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** primary openHASP plate `entity_id`. Group will be dynamically expanded and populated with all available openHASP entities - sorted in alphabetical order
 - In both `config.yaml` and `automations.yaml` files, search for `t3e_02` (my plate name) and replace with **your** plate name.
-Currently there are nine hardcoded entities left in the `config.yaml` file
-	-	The custom component configuration slug entry
-	-	Four entries in the custom component plate configuration
+Currently there are nine hardcoded openHASP entities left in the Custom Component part of the`config.yaml` file
+	-	The Custom Component configuration **slug entry**
+	-	**Four entries** in the custom component **plate configuration**
 		- These are needed to be kept unique for each plate configuration as they control local events on the plate being operated
-	-	Additional four entries in the page 0 objects (not mandatory)
-	- No entries left in the remaining `config.yaml` file
-- In the `automations.yaml` there are four hardcoded entities left in Home Assistant restart automations (not mandatory)
-
-If you've multiple Sonos media player plates, then add all plate entities to the automations where multiple `entity_id`'s are used to trigger object events upon HA/plate reboot. Search for `#- openhasp.wt32_01` in `automations.yaml` in order to find current automations with multiple `entity_id` triggers. 
-
+	-	Additional **four entries** in the **page 0 objects** (not mandatory)
+	- No entries left in the remaining `config.yaml`or `automations.yaml` files
 
 **Changes in Home Assistant:**
 
@@ -172,40 +168,40 @@ February, 2023 @htvekov
 
 ### Below, various images showing the tab views and the pop up info overlay object:
 
-![Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image1.png)
-##### Source dropdown list
+![T3E Source dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image1.png)
+##### T3E Source dropdown list
 
-![Playlist dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image2.png)
-##### Playlist dropdown list
+![T3E Playlist dropdown list](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image2.png)
+##### T3E Playlist dropdown list
 
-![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image3.png)
-##### Slave speaker selection buttons
+![T3E Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image3.png)
+##### T3E Slave speaker selection buttons
 
-![Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image4.png)
-##### Pop up info overlay object
+![T3E Slave speaker selection buttons](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image4.png)
+##### T3E Pop up info overlay object
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image6_320x480.png)
-##### 320 x 480 res. layout
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image6_320x480.png)
+##### WT32_SC01 Plus 320 x 480 res. layout
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image7_320x480.png)
-##### Source dropdown list
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image7_320x480.png)
+##### WT32_SC01 Plus Source dropdown list
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/image8_320x480.png)
-##### Slave speaker selection buttons
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image8_320x480.png)
+##### WT32_SC01 Plus Slave speaker selection buttons
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/sunton_openhasp_sonos_01.png)
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_01.png)
 ##### 480 x 800 res. layout
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/sunton_openhasp_sonos_02.png)
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_02.png)
 ##### Pop up info overlay object
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/sunton_openhasp_sonos_03.png)
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_03.png)
 ##### Source dropdown list
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/sunton_openhasp_sonos_04.png)
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_04.png)
 ##### Master speaker button and Master speaker button matrix
 
-![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/sunton_openhasp_sonos_05.png)
+![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_05.png)
 ##### Pop up info overlay object
 
 
