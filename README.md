@@ -10,7 +10,8 @@
 	 Master speaker entity is now dynamic and can be altered directly from plate
 
 - **1.02** (2023-01-30)
-	Removed `zoom` service calls as Custom Component now support image upscaling. Requires openHASP Custom Component from `main` branch commit `b2ed186` or newer
+	Removed `zoom` service calls as Custom Component now support image upscaling
+	Requires openHASP Custom Component from `main` branch commit `b2ed186` or newer
 
 -	**1.01** (2023-01-28)
 Added revised layout (**portrait** mode) for 320x480 resolution devices
