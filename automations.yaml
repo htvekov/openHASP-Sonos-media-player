@@ -1,3 +1,76 @@
+
+# HA STARTUP - PUSH VARIOUS STATES TO PLATES
+- id: openhasp_sonos_ha_startup_update_objects
+  alias: openHASP Sonos HA startup update objects
+  mode: restart
+  trigger:
+  - platform: state
+    entity_id:
+    - group.hasp_sonos_devices
+    attribute: entity_id
+    for:
+      seconds: 10
+  - platform: homeassistant
+    event: start
+  variables:
+    volume: >
+      {{ ((states("sensor.sonos_volume") | int * 2) / (1 + (states("sensor.sonos_volume") | int / 100))) | int }}
+  action:
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b20.val
+      payload_template: "{{ volume }}"
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b20.value_str
+      payload_template: "{{ volume }}"
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/jsonl
+      payload_template: >
+        {"page":2,"id":89,"text":"{{ states('sensor.sonos_master_friendly') }}"}
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/jsonl
+      payload_template: >
+        {"page":2,"id":93,"options":{% set ns=namespace(counter="")
+        %}{% for sources in state_attr("group.sonos_all_speakers", "entity_id")[1:]
+        %}{% set friendly = "#008000 " + state_attr((sources), "friendly_name")
+        + "#" if sources in state_attr("group.sonos_all", "entity_id") else
+        "#FF0000 " + state_attr((sources), "friendly_name") + "#" %}{% set ns.counter
+        = ns.counter + '\"'+ friendly +'"' %}{% if not loop.last %}{% set ns.counter
+        = ns.counter + "," + '"\\n"' + "," %}{% endif %}{% endfor %}[{{ns.counter}}]}
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/jsonl
+      payload_template: >
+        {% if states("sensor.hasp_sonos_master_state") == "paused" %}
+          {"page":2,"id":17,"val":0,"text":"\ue40a"}
+        {% elif states("sensor.hasp_sonos_master_state") == "playing" %}
+          {"page":2,"id":17,"val":1,"text":"#FFAC00 \ue3e4#"}
+        {% else %}
+          {"page":2,"id":17,"val":0,"text":"\ue4db"}
+        {% endif %}
+
+
+# Update and populate group.hasp_sonos_devices dynamically with all available openHASP devices
+# Updates upon changes and HA restart
+- id: openhasp_sonos_change_available_openhasp_devices_group
+  alias: openHASP Sonos change available openHASP devices group
+  mode: restart
+  trigger:
+  - platform: state
+    entity_id: sensor.hasp_all_available_devices
+  - platform: homeassistant
+    event: start
+  action:
+  - service: group.set
+    data_template:
+      object_id: hasp_sonos_devices
+      entities: >
+        {{ states("sensor.hasp_all_available_devices") }}
+
+
 # Update group.sonos_all upon HA start and change in Sonos speaker group
 - id: openhasp_sonos_change_sonos_active_group_speakers
   alias: openHASP Sonos change active group speakers
@@ -76,49 +149,58 @@
 
 
 # Upon change, push media source + state to plate(s) in separate pop-up window for 5 seconds
+# Mandatory: support sensor sensor.hasp_sonos_master_state
+# and group.hasp_sonos_devices
+# Revised 20230216. Completely dynamic now and support simultanious, mixed plates with varying display width
 - id: openhasp_sonos_push_source_media
   alias: openHASP Sonos push source media
   mode: restart
   trigger:
     platform: state
-    # Dynamic entity_id trigger - Sonos master speaker state 
     entity_id: sensor.hasp_sonos_master_state
-    # Need 'to: "xxx"' in order to filter out attribute changes. Only checking for playing/paused state changes.
     to:
-      - "playing"
-      - "paused"
-  condition:  # Filter out 'unavailable' before pushing change to plate (only pushing when media player has data ready)
+    - playing
+    - paused
+  condition:
     condition: and
     conditions:
-      - condition: template
-        value_template: "{{ states('sensor.media_source') != 'unavailable' }}"
+    - condition: template
+      value_template: "{{ states('sensor.media_source') != 'unavailable' }}"
+  variables:
+    source_type: >
+      {% if states('sensor.media_source') != 'no source' %}
+        {{ 'TuneIn' if states("binary_sensor.sonos_tunein_is_source") == 'on' else 'Source' }}
+      {% elif state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist') != None %}
+        {{ 'Spotify playlist' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist' }}
+      {% else %}  
+        {{ 'Spotify song' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown song' }}
+      {% endif %}
+    source_name_status: >
+      {% if source_type == 'TuneIn' or source_type == "Source" %}
+        \n{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel') }}\n#FFAC00 {{ states('sensor.hasp_sonos_master_state') }}
+      {% elif source_type is not search('song', ignorecase=True) %}
+        \n{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist')}}\n#FFAC00 {{ states('sensor.hasp_sonos_master_state') }}
+      {% else %}
+        \n\n#FFAC00 {{ states('sensor.hasp_sonos_master_state') }} 
+      {% endif %}
   action:
-    # Dynamic positioning of the pop up window
-  - service: mqtt.publish
-    data:
-      topic: hasp/plates/command
-      payload: >-
-        {% if states('sensor.media_source') != 'no source' and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"align":"center","mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'TuneIn\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('tunein', ignorecase=True) else 'Source\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif states('sensor.media_source') != 'no source' and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320 %} 
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":10,"y":145,"w":188,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"align":"center","mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'TuneIn\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('tunein', ignorecase=True) else 'Source\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif states('sensor.media_source') != 'no source' and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 800 %} 
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":40,"y":145,"w":275,"pad_bottom":8,"bg_color":"#000000","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"align":"center","mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'TuneIn\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('tunein', ignorecase=True) else 'Source\n' }}#FFFFFF {{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_channel')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist') != None and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480  %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'Spotify playlist\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist') != None and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320  %} 
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":10,"y":160,"w":188,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":28,"text":"{{ 'Spotify playlist\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist')}}\n{{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist') != None and state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 800  %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":40,"y":145,"w":275,"align":"center","border_color":"#FFAC00","pad_bottom":8,"border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFFFFF","text_font":32,"text":"{{ '#FFAC00 Spotify playlist\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_playlist')}}\n#FFAC00 {{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 480 %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'Spotify song\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 320 %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":10,"y":177,"w":188,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":28,"text":"{{ 'Spotify song\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{states('sensor.hasp_sonos_master_state')}}"}
-        {% elif state_attr(states('sensor.hasp_sonos_devices'), 'tftWidth') == 800 %}
-          {"obj":"label","id":90,"hidden":0,"page":2,"x":40,"y":170,"w":275,"align":"center","pad_bottom":8,"border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":28,"text":"{{ 'Spotify song\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{states('sensor.hasp_sonos_master_state')}}"}
-        {% else %}  
-           {"obj":"label","id":90,"hidden":0,"page":2,"x":45,"y":170,"w":220,"align":"center","border_color":"#FFAC00","border_width":2,"radius":10,"radius1":10,"radius2":10,"mode":"break","text_color":"#FFAC00","text_font":32,"text":"{{ 'Spotify song\n' if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_content_id') is search('spotify', ignorecase=True) else 'Unknown playlist\n' }}{{states('sensor.hasp_sonos_master_state')}}"}
-        {% endif %}
+  - repeat:
+      for_each: >
+        {{ state_attr("group.hasp_sonos_devices", "entity_id") | list }}
+      sequence:
+        - variables:
+            w: "{{ state_attr((repeat.item), 'tftWidth') }}"
+        - service: mqtt.publish
+          data:
+            topic: "hasp/{{ state_attr((repeat.item), 'node') }}/command/jsonl"
+            payload: >
+              {% if w == 800 %}
+                {"page":2,"id":90,"hidden":0,"x":40,"y":153,"w":275,"text_font":32,"text":"#FFAC00 {{ source_type }}{{ source_name_status }}"}
+              {% elif w == 480 %}
+                {"page":2,"id":90,"hidden":0,"x":45,"y":160,"w":220,"text_font":32,"text":"#FFAC00 {{ source_type }}{{ source_name_status }}"}
+              {% else %}
+                {"page":2,"id":90,"hidden":0,"x":10,"y":157,"w":188,"text_font":28,"text":"#FFAC00 {{ source_type }}{{ source_name_status }}"}
+              {% endif %}             
   - delay:
       seconds: 5
   - service: mqtt.publish
@@ -137,12 +219,11 @@
     - platform: homeassistant
       event: start
     - platform: state
-      # Enter all used openHASP plates entity_id's here 
-      entity_id:
-        #- openhasp.wt32_01
-        #- openhasp.wt32_02
-        - openhasp.t3e_02
-      from: unavailable
+    entity_id:
+    - group.hasp_sonos_devices
+    attribute: entity_id
+    for:
+      seconds: 10
   action:
   - service: mqtt.publish
     data_template:
@@ -164,13 +245,11 @@
     - platform: homeassistant
       event: start
     - platform: state
-      # Enter all used openHASP plates entity_id's here 
-      entity_id:
-      #- openhasp.wt32_01
-      #- openhasp.wt32_02
-      - openhasp.t3e_02
-      from:
-      - unavailable
+    entity_id:
+    - group.hasp_sonos_devices
+    attribute: entity_id
+    for:
+      seconds: 10
   action:
   - service: mqtt.publish
     data_template:
@@ -192,13 +271,11 @@
     - platform: homeassistant
       event: start
     - platform: state
-      # Enter all used openHASP plates entity_id's here 
-      entity_id:
-      #- openhasp.wt32_01
-      #- openhasp.wt32_02
-      - openhasp.t3e_02
-      from:
-      - unavailable
+    entity_id:
+    - group.hasp_sonos_devices
+    attribute: entity_id
+    for:
+      seconds: 10
   action:
   - service: mqtt.publish
     data_template:
