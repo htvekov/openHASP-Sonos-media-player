@@ -818,12 +818,11 @@
     - platform: homeassistant
       event: start
     - platform: state
-      # Enter all used openHASP plates entity_id's here 
       entity_id:
-        #- openhasp.wt32_01
-        #- openhasp.wt32_02
-        - openhasp.t3e_02
-      from: unavailable
+      - group.hasp_sonos_devices
+      attribute: entity_id
+      for:
+        seconds: 10
   condition:
     - condition: template
       value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'entity_picture') != None }}"
