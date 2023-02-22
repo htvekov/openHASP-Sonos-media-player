@@ -282,6 +282,17 @@ sensor:
         value_template: >-
           {%for sources in state_attr('sensor.sonos_favorites','items').values() if sources[0]!="*"%}{%if sources[-1]!="|"%}{{sources+"\n"}}{%else%}{{sources[0:-1]+"\n"}}{%endif%}{%endfor%}
       
+      hasp_all_available_devices:
+        value_template: >
+          {% set ns = namespace(ad="") %}
+          {% for state in states.openhasp if states(state.entity_id) != 'unavailable' %}
+          {% set ns.ad = ns.ad + state.entity_id %}
+          {% if not loop.last %}
+          {% set ns.ad = ns.ad + ',' %}
+          {% endif %}
+          {% endfor %}
+          {{ ns.ad }}
+      
       hasp_sonos_devices:
         value_template: "{{ state_attr('group.hasp_sonos_devices', 'entity_id')[0] }}"
 
