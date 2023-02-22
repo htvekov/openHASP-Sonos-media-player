@@ -1,16 +1,21 @@
+# Leave this group unpopulated !!
 # This group will contain all available Sonos speakers and will be updated dynamically and upon HA start
 # Will always contain master speaker as first entity !!
 sonos_all_speakers:
   name: sonos_all_speakers 
 
-# Define your master speaker here !!
-# This group will contain the active Sonos speaker group and will be updated dynamically and upon HA start
+# Define your initial master speaker here !!
+# This group will contain the openHASP active Sonos speaker group and will be updated dynamically and upon HA start
 sonos_all:
   name: sonos_all
   entities:
     - media_player.kokken
 
-# Define your openHASP plates entities here !!
+# Define your initial openHASP plates entities here !!
+# This group will contain all available openHASP plates and will be updated dynamically and upon HA start
+# Disable HA automation "openhasp_sonos_change_available_openhasp_devices_group" if you don't want HA to dynamically
+# add all existing openHASP plates to the group. If automation is disabled, then add all the openHASP entities here
+# that are configured with the Sonos controller on page 2.
 hasp_sonos_devices:
   name: hasp_sonos_devices
   entities:
