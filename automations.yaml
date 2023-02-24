@@ -719,15 +719,16 @@
       payload: '{"event":"down"}'
   condition:
   - condition: template
-    value_template: '{{ states(''sensor.media_source'') != ''no source'' }}'
+    value_template: "{{ states('sensor.media_source') != 'no source' }}"
   action:
   - service: media_player.select_source
     data_template:
-      entity_id: '{{ state_attr(''group.sonos_all'', ''entity_id'')[0] }}'
+      entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
       source: >
         {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
         {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
-        {% set current = states('sensor.media_source') %} {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
+        {% set current = states('sensor.media_source') %}
+        {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
         {% set index = source_list.index(current) %}
         {% if trigger.topic.split('/')[3] == 'p2b18' %}
           {% set next = source_start if current == source_list[-1] else index + 1 %}
