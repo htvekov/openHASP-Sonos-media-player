@@ -706,56 +706,36 @@
 # Remember plates have to share same object mapping (page/object number)
 # Only change for sources (radio stations) - not for playlists
 # 190822: Revised to use new sensor.sonos_favorites as source_list attribute has been deprecated
-- id: openhasp_sonos_next_source
-  alias: openHASP Sonos next source
+# 240223: Revised to one combined automation for both previous/next events
+- id: openhasp_sonos_prev_next_source
+  alias: openHASP Sonos previous/next source
   mode: single
   trigger:
-    platform: mqtt
-    topic: hasp/+/state/p2b18
-    payload: '{"event":"down"}'
+    - platform: mqtt
+      topic: hasp/+/state/p2b18
+      payload: '{"event":"down"}'
+    - platform: mqtt
+      topic: hasp/+/state/p2b16
+      payload: '{"event":"down"}'
   condition:
-    - condition: template
-      value_template: "{{ states('sensor.media_source') != 'no source' }}"
+  - condition: template
+    value_template: '{{ states(''sensor.media_source'') != ''no source'' }}'
   action:
   - service: media_player.select_source
     data_template:
-      entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
-      source: >-
+      entity_id: '{{ state_attr(''group.sonos_all'', ''entity_id'')[0] }}'
+      source: >
         {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
         {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
-        {% set current = states('sensor.media_source') %}
-        {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
+        {% set current = states('sensor.media_source') %} {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
         {% set index = source_list.index(current) %}
-        {% set next = source_start if current == source_list[-1] else index + 1 %}        
-        {{ source_list[next] }}
-        
-
-# Listen for changes from ALL plates (+ in topic)  !
-# Remember plates have to share same object mapping (page/object number)
-# Only change for sources (radio stations) - not for playlists
-# 190822: Revised to use new sensor.sonos_favorites as source_list attribute has been deprecated
-- id: openhasp_sonos_prev_source
-  alias: openHASP Sonos previous source
-  mode: single
-  trigger:
-    platform: mqtt
-    topic: hasp/+/state/p2b16
-    payload: '{"event":"down"}'
-  condition:
-    - condition: template
-      value_template: "{{ states('sensor.media_source') != 'no source' }}"
-  action:
-  - service: media_player.select_source
-    data_template:
-      entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
-      source: >-
-        {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
-        {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
-        {% set current = states('sensor.media_source') %}
-        {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
-        {% set index = source_list.index(current) %}
-        {% set prev = -1 if current == source_list[source_start] else index - 1 %}
-        {{ source_list[prev] }}
+        {% if trigger.topic.split('/')[3] == 'p2b18' %}
+          {% set next = source_start if current == source_list[-1] else index + 1 %}
+          {{ source_list[next] }}
+        {% else %}
+          {% set prev = -1 if current == source_list[source_start] else index - 1 %}
+          {{ source_list[prev] }}
+        {% endif %}
 
 
 # Push source state changes to dropdown objects on all plates ("show_selected":1 attribute on dropdown object)
