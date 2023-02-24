@@ -728,19 +728,7 @@
         {% set index = source_list.index(current) %}
         {% set next = source_start if current == source_list[-1] else index + 1 %}        
         {{ source_list[next] }}
-  # Update Sources dropdown start position value on all plates, if source is changed through next/previous buttons
-  - service: mqtt.publish
-    data_template:
-      topic: hasp/plates/command/p2b99.val
-      payload: >-
-        {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
-        {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
-        {% set current = states('sensor.media_source') %}
-        {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
-        {% set index = source_list.index(current) %}
-        {% set pos = source_start if current == source_list[-1] else index + 1 %}        
-        {{ pos - source_start - 1 }}    
-
+        
 
 # Listen for changes from ALL plates (+ in topic)  !
 # Remember plates have to share same object mapping (page/object number)
@@ -768,18 +756,32 @@
         {% set index = source_list.index(current) %}
         {% set prev = -1 if current == source_list[source_start] else index - 1 %}
         {{ source_list[prev] }}
-  # Update Sources dropdown start position value on all plates, if source is changed through next/previous buttons
+
+
+# Push source state changes to dropdown objects on all plates ("show_selected":1 attribute on dropdown object)
+# Update current attribute, if source is in favourites list
+# Check if source is playlist as condition
+# Template will fail (warning) if source is not in favourites list due to use of .index()
+- id: openhasp_sonos_push_source_change_to_dropdown_object
+  alias: openhasp Sonos push source change to dropdown object
+  mode: single
+  trigger:
+    platform: state
+    entity_id: sensor.media_source
+  condition:
+  - condition: template
+    value_template: '{{ states("sensor.media_source") != "no source" }}'
+  action:
   - service: mqtt.publish
     data_template:
       topic: hasp/plates/command/p2b99.val
-      payload: >-
+      payload: >
         {% set source_start = states('sensor.sonos_source_index_start') | int(0) %}
         {% set entity_id = state_attr('group.sonos_all', 'entity_id')[0] %}
         {% set current = states('sensor.media_source') %}
         {% set source_list = state_attr('sensor.sonos_favorites', 'items').values() | list %}
         {% set index = source_list.index(current) %}
-        {% set pos = source_start if current == source_list[-1] else index + 1 %}        
-        {{ pos - source_start - 1 }}    
+        {{ index - source_start }}
 
 
 # Next/previous track - Only change for playlists - not for sources (radio stations)
