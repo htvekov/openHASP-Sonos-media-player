@@ -23,53 +23,6 @@ openhasp:
           "text_color": "{% if -30 <= state_attr('openhasp.t3e_02','rssi') | int(0) %}green{% elif -31 > state_attr('openhasp.t3e_02','rssi') | int(0) >= -50 %}orange{% elif -51 > state_attr('openhasp.t3e_02','rssi') |int (0) >= -80 %}tomato{% else %}red{% endif %}"
       
       # Page 2 - Sonos media player plate
-      # Mute button - Event only in configuration.
-      # Track & Properties (icon, color & val) done in automations.yaml
-      - obj: "p2b24"
-        event:
-          "down":
-            - service: media_player.volume_mute
-              data:
-                entity_id: group.sonos_all
-                is_volume_muted:  >
-                  {% if state_attr((state_attr('group.sonos_all', 'entity_id')[0]),'is_volume_muted') %}
-                    false
-                  {% else %}
-                    true
-                  {% endif %}  
-      
-      # Shuffle button - Event only in configuration.
-      # Track & Properties (icon, color & val) done in automations.yaml
-      - obj: "p2b25"
-        event:
-          "down":
-            - service: media_player.shuffle_set
-              data:
-                entity_id: group.sonos_all
-                shuffle:  >
-                  {% if state_attr((state_attr('group.sonos_all', 'entity_id')[0]),'shuffle') %}
-                    false
-                  {% else %}
-                    true
-                  {% endif %} 
-      
-      # Repeat button - Event only in configuration.
-      # Track & Properties (icon, color & val) done in automations.yaml
-      - obj: "p2b27"
-        event:
-          "down":
-            - service: media_player.repeat_set
-              data:
-                entity_id: group.sonos_all
-                repeat: >
-                  {% if is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'one') %}
-                    all
-                  {% elif is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'all') %}
-                    off
-                  {% elif is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'off') %}
-                    one
-                  {% endif %}
-      
       # Progressbar - Set max value according to media_duration attribute
       # Reset value to zero moving forward in playlist while paused
       - obj: "p2b41"
@@ -82,69 +35,7 @@ openhasp:
               0
             {% endif %}
 
-      # Sonos dynamic PLAYLIST options
-      - obj: "p2b98"
-        properties:
-          # "options": "PLAYLIST with * as start"
-          # Show all sources starting with '*'. Sources are without preceeding asterix ('*') and to be shown in separate tab (p2b99)
-          # Show on plate without preceeding '*' and add again to source upon selection
-          "options": "{{ states('sensor.hasp_sonos_playlist_options') }}"
-        event:
-          "changed":
-            - service: media_player.select_source
-              data:
-                entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
-                source: "*{{ text }}"
-            # In sequence: Hide and push tabview object to background
-            # Hide speaker glyph & master and slave speaker text
-            # Show Artist glyph & Artist/Artist & album text
-            - service: mqtt.publish
-              data:
-                topic: hasp/t3e_02/command/jsonl
-                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
-          "up":
-            # In sequence: Hide and push tabview object to background
-            # Hide speaker glyph & master and slave speaker text
-            # Show Artist glyph & Artist/Artist & album text
-            - service: mqtt.publish
-              data:
-                topic: hasp/t3e_02/command/jsonl
-                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
-
-      # Sonos dynamic SOURCE options     
-      - obj: "p2b99"
-        properties:
-          # "options": "DR P1\nDR P3"
-          # Filter out all sources starting with '*'. These are playlists to be shown in separate tab (p2b98)
-          # Calculate source_list indexed to be chosen from returned [val] + number of playlist 'sources'
-          # can't just use returned [text] as some sources ends with '|', if their title/artist attributes are to be flipped
-          # 190822: Revised to use new sensor.sonos_favorites as source_list attribute has been deprecated
-          "options": "{{ states('sensor.hasp_sonos_source_options') }}"
-        event:
-          "changed":
-            - service: media_player.select_source
-              data:
-                entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
-                source: "{{ (state_attr('sensor.sonos_favorites', 'items').values() | list)[states('sensor.sonos_source_index_start') | int + val] }}"
-            # In sequence: Hide and push tabview object to background
-            # Hide speaker glyph & master and slave speaker text
-            # Show Artist glyph & Artist/Artist & album text
-            - service: mqtt.publish
-              data:
-                topic: hasp/t3e_02/command/jsonl
-                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
-          "up":
-            # In sequence: Hide and push tabview object to background
-            # Hide speaker glyph & master and slave speaker text
-            # Show Artist glyph & Artist/Artist & album text
-            - service: mqtt.publish
-              data:
-                topic: hasp/t3e_02/command/jsonl
-                payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
-
-
-
-
+      
 
 
 # Sonos support sensors - openHASP Sonos group multiple plates configuration
