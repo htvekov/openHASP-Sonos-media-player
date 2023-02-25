@@ -79,14 +79,14 @@ Example below:
 		-   Available slave speakers are listed in the button matrix displayed under the Master speaker button
 		-  Already grouped slave speakers are listed in **green**
 		- Non grouped, available speakers are listed in **red**
-		- Not available speakers will not be shown at all (dynamic group)
+		- Unavailable speakers will not be shown at all (dynamic group)
 		- **Toggle** buttons to **join/unjoin** speakers
 
 	-  ***320 x 480 and 480 x 480 resolution layouts***
 		- on **tabview** mentioned under Source/playlist dropdown
 		- Already grouped slave speakers are listed in **green**
 		- Non grouped, available speakers are listed in **red**
-		-  Not available speakers will not be shown at all (dynamic group)
+		-  Unavailable speakers will not be shown at all (dynamic group)
 		- **Toggle** buttons to join/unjoin speakers
 		- **Exit** selection tab via either of the dropdown lists **‘arrows’**.
 
@@ -123,17 +123,15 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 
 **Changes in configuration files:**
 - Copy all page 2 objects from either `sunton_jsonl`, `gs_t3e.jsonl` or `wt32_01_plus.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the files, so you can copy the entire page layout if you want.
-	- **480 x 800 pixels:** Use `sunton_jsonl` file 
-	- **480 x 480 pixels:** use `gs_t3e.jsonl` file
-	- **320 x 480 pixels (portrait mode):** use `wt32_01_plus.jsonl` file
+	- **480 x 800 pixels (landscape mode):** Use `sunton_jsonl` file 
+	- **480 x 480 pixels:** Use `gs_t3e.jsonl` file
+	- **320 x 480 pixels (portrait mode):** Use `wt32_01_plus.jsonl` file
 - Populate `group.sonos_all` in `groups.yaml` file with **your** typical master speaker `entity_id` only. Remaining speaker entities will be populated dynamically `group.sonos_all_speakers` should be left untouched and unpopulated. It will be populated upon HA start and dynamically revised upon speaker availability change
 - Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** primary openHASP plate `entity_id`. Group will be dynamically expanded and populated with all available openHASP entities - sorted in alphabetical order
 - In`config.yaml` file, search for `t3e_02` (my plate name) and replace with **your** plate name.
-Currently there are nine hardcoded openHASP entities left in the Custom Component part of the`config.yaml` file
+Currently there are five hardcoded openHASP entities left in the Custom Component part of the`config.yaml` file
 	-	The Custom Component configuration **slug entry**
-	-	**Four entries** in the custom component **plate configuration**
-		- These are needed to be kept unique for each plate configuration as they control local events on the plate being operated
-	-	Additional **four entries** in the **page 0 objects** (not mandatory)
+	-	And additional **four entries** in the **page 0 objects** (not mandatory)
 	- No hardcoded entities left in the remaining `config.yaml`or `automations.yaml` files
 
 **Changes in Home Assistant:**
