@@ -51,6 +51,14 @@
         {% else %}
           {"page":2,"id":17,"val":0,"text":"\ue4db"}
         {% endif %}
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b98.options
+      payload: "{{ states('sensor.hasp_sonos_playlist_options') }}"
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b99.options
+      payload: "{{ states('sensor.hasp_sonos_source_options') }}"
 
 
 # Update and populate group.hasp_sonos_devices dynamically with all available openHASP devices
@@ -236,6 +244,42 @@
         {% endif %}
 
 
+## 250223 New automation
+## Moved from CC event part p2b24
+- id: openhasp_sonos_change_volume_muted
+  alias: openHASP Sonos change volume muted
+  mode: queued
+  trigger:
+    platform: mqtt
+    topic: hasp/+/state/p2b24
+  condition:
+  - condition: template
+    value_template: "{{ trigger.payload_json.event == 'up' }}"
+  action:
+  - service: media_player.volume_mute
+    data:
+      entity_id: group.sonos_all
+      is_volume_muted: "{{ false if state_attr((state_attr('group.sonos_all', 'entity_id')[0]),'is_volume_muted') else true }}"
+
+
+## 250223 New automation
+## Moved from CC event part p2b25
+- id: openhasp_sonos_change_shuffle
+  alias: openHASP Sonos change shuffle
+  mode: queued
+  trigger:
+    platform: mqtt
+    topic: hasp/+/state/p2b25
+  condition:
+  - condition: template
+    value_template: "{{ trigger.payload_json.event == 'up' }}"
+  action:
+  - service: media_player.shuffle_set
+    data:
+      entity_id: group.sonos_all
+      shuffle: "{{ false if state_attr((state_attr('group.sonos_all', 'entity_id')[0]),'shuffle') else true }}"
+
+
 - id: openhasp_push_sonos_shuffle
   alias: openHASP push Sonos shuffle
   mode: single
@@ -259,6 +303,31 @@
           {"page":2,"id":25,"val":1,"text":"\ue49d"}
         {% else %}
           {"page":2,"id":25,"val":0,"text":"\ue49e"}
+        {% endif %}
+
+
+## 250223 New automation
+## Moved from CC event part p2b27
+- id: openhasp_sonos_change_repeat
+  alias: openHASP Sonos change repeat
+  mode: queued
+  trigger:
+    platform: mqtt
+    topic: hasp/+/state/p2b27
+  condition:
+  - condition: template
+    value_template: "{{ trigger.payload_json.event == 'up' }}"
+  action:
+  - service: media_player.repeat_set
+    data:
+      entity_id: group.sonos_all
+      repeat: >
+        {% if is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'one') %}
+          all
+        {% elif is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'all') %}
+          off
+        {% elif is_state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'repeat', 'off') %}
+          one
         {% endif %}
 
 
@@ -784,6 +853,78 @@
       {{ 'media_player.media_previous_track' if trigger.topic.split('/')[3] == 'p2b16' else 'media_player.media_next_track' }} 
     data:
       entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
+
+
+## 240223 New automation
+## Moved from CC event part p2b98/p2b99 
+- id: openhasp_sonos_select_source_from_dropdown_list
+  alias: openHASP Sonos select source from dropdown list
+  mode: queued
+  trigger:
+    - platform: mqtt
+      topic: hasp/+/state/p2b98
+    - platform: mqtt
+      topic: hasp/+/state/p2b99
+  condition:
+  - condition: template
+    value_template: "{{ trigger.payload_json.event == 'up' or trigger.payload_json.event == 'changed' }}"
+  action:
+  # In sequence: Hide and push tabview object to background
+  # Hide speaker glyph & master and slave speaker text
+  # Show Artist glyph & Artist/Artist & album text
+  - service: mqtt.publish
+    data:
+      topic: "hasp/{{trigger.topic.split('/')[1]}}/command/jsonl"
+      payload: "{'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}"
+  # Only 'changed' event should alter source selection
+  - condition: template
+    value_template: "{{ trigger.payload_json.event == 'changed' }}"
+  # Calculate source_list indexed to be chosen from returned [val] + number of playlist 'sources'
+  # Can't just use returned [text] as some sources ends with '|' if their title/artist attributes are to be flipped
+  # Or
+  # Show all sources (playlists) starting with '*'. 'Real' sources are without prefixed asterix ('*') and shown in separate tab (p2b99)
+  # Show on plate without prefixed '*' and add again to source upon selection
+  - service: media_player.select_source
+    data:
+      entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
+      source: >
+        {% if trigger.topic.split('/')[3] == 'p2b98' %}
+          *{{ trigger.payload_json.text }}
+        {% else %}
+          {{ (state_attr('sensor.sonos_favorites', 'items').values() | list)[states('sensor.sonos_source_index_start') | int + trigger.payload_json.val] }}
+        {% endif %}
+
+
+## 240223 New automation
+## Moved from CC properties part p2b98
+# Show sources (playlists) on plate without preceeding '*' and add again to source upon selection  
+- id: openhasp_sonos_push_playlist_updates_to_plates
+  alias: openhasp Sonos push playlist updates to plates
+  mode: single
+  trigger:
+    platform: state
+    entity_id: sensor.hasp_sonos_playlist_options
+  action:
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b98.options
+      payload: "{{ states('sensor.hasp_sonos_playlist_options') }}"
+
+
+## 240223 New automation
+## Moved from CC properties part p2b99
+# Filter out all sources starting with '*'. These are playlists to be shown in separate tab (p2b98)
+- id: openhasp_sonos_push_source_list_updates_to_plates
+  alias: openhasp Sonos push source list updates to plates
+  mode: single
+  trigger:
+    platform: state
+    entity_id: sensor.hasp_sonos_source_options
+  action:
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b99.options
+      payload: "{{ states('sensor.hasp_sonos_source_options') }}"
 
 
 # Dynamic support for both 320, 480 and 800 pixel width devices
