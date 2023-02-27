@@ -37,16 +37,17 @@ Configuration prepared to run either multiple 320x480 or 480x480 res. devices wi
 -   GS-T3E / WT32-SC01 (plus) / Sunton ESP32-48S035 / Sunton ESP32-8048S050 / Sunton ESP32-8048S070 or similar devices **with** PSram
 	- Configuration can dynamically handle **both** multiple 320x480, 480x480 or 480x800 resolution displays
 	- Even devices with different resolutions can be mixed and matched, as configuration now is fully dynamic
-	
+
+### Description:
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
-Approach was to make this setup as dynamic as possible. The original design with a designated hardcoded master speaker has now been abandoned and replaced with a fully dynamic group speaker configuration. Now it's possible to change both master- and slave speakers and jump between all active groups or single speakers by changing the Master Speaker. 
+Approach was to make this setup as dynamic as possible. The original design with a designated hardcoded master speaker has now been abandoned and replaced with a fully dynamic group speaker configuration. Now it's possible to change both master- and slave speakers and jump between all active groups or single speakers by changing the Master Speaker. By design, all plates will always display the same chosen speaker group. 
 
-I also wanted to keep mqtt chatter to a minimum and have mainly used mqtt group topics and not entities for boths triggers and actions. Hence the config is primarily done as automations and not solely as Custom Component configuration. As config is quite elaborate, a multi plate Custom Component configuration for eg. five plates would also have filled more than 4000 lines !
+I also wanted to keep mqtt 'chatter' to a minimum and have mainly used mqtt group topics and not entities for boths triggers and actions. Hence the configuration logic is entirely done as automations and not as Custom Component configuration. As configuration is quite elaborate, a multi plate Custom Component configuration for eg. five plates would also have exceeded more than 4000 lines  !
 
-This configuration will only control all speakers volume as a global group. So no individual volume setting is possible from plates. Joining new slave speakers to the group, will also set new speakers volume to match master speakers volume - before it’s joined.
+This configuration only allows control of all speakers volume as a global group. So no individual volume setting is possible from plates. Joining new slave speakers to the group, will also set new speakers volume to match master speakers volume - before it’s joined.
 
-Config template will split all Sonos Favourites in two groups, but will need a little help from you to determine what belongs to which group. All ‘non sources’ (playlists, songs, podcasts etc. from eg. Spotify) should be renamed (in the Sonos app or via web interface) and prefixed with an asterix ‘*’ (No extra spaces, just an asterix)
+Configuration templates will split all Sonos Favourites in two groups, but will need a little help from you to determine what belongs to which group. All ‘non sources’ (playlists, songs, podcasts etc. from e.g. Spotify) should be renamed and prefixed with an asteriks ‘*’ (No extra spaces, just an asteriks). Renaming is easily done directly in the Sonos app or via Sonos web interface.
 
 Sources (radio stations) unfortunately doesn’t follow any strict rules on how to present media meta data. So some radio stations will unfortunately appear on plate with artist/title mixed up. Source in Sonos Favourites can be renamed and suffixed with a ‘|’ pipe symbol (No extra spaces, just a pipe symbol). Templates in config will seek out this pipe symbol and swap title/artist on plate display. Symbol will also be hidden in dropdown list, pop-up info etc.
 Special fix for handling danish national radio stations is hardcoded in templates:
@@ -107,16 +108,16 @@ Example below:
 	- Active speakers are displayed instead of artist, when **tabview is active**
 	- On 480 x 800 resolution devices both master- and slave speakers are displayed at all times
 
-#### Config consists of four elements:
+#### Configuration consists of four elements:
 - `groups.yaml` containing needed Home Assistant groups
-- `configuration.yaml` containing all support 'helper' sensors. Both 'standard'-, mqtt- and binary sensors
+- `configuration.yaml` containing all support 'helper' sensors. Both 'standard'-, mqtt- and binary sensors. File also contains the optional page 0 objects
 - `automations.yaml` containing all needed logic
 - Device specific `jsonl` file containing all the objects
 
 ### Following needs to be done for config to work !!
 
 **Changes in Sonos app:**
-- **Mandatory:** Revise your Sonos Favourites so all playlists, songs, podcast etc. are **prefixed** with an asterix **‘*’** character. Config will **need** this as key to sort favourites into sources / non sources groups
+- **Mandatory:** Revise your Sonos Favourites so all playlists, songs, podcast etc. are **prefixed** with an asteriks **‘*’** character. Configuration will **need** this as key to sort favourites into sources / non sources groups
 - **Optional:** Revise Sonos sources that need media title/artist to be swapped, by adding a pipe symbol **‘|’** as **suffix** to source name in Sonos Favourites
 
 **Examples:**
@@ -132,14 +133,14 @@ Example below:
 	- **480 x 800 pixels (landscape mode):** Use `sunton.jsonl` file 
 	- **480 x 480 pixels:** Use `gs_t3e.jsonl` file
 	- **320 x 480 pixels (portrait mode):** Use `wt32_01_plus.jsonl` file
-- Populate `group.sonos_all` in `groups.yaml` file with **your** typical master speaker `entity_id` only. Remaining speaker entities will be populated dynamically
+- Populate `group.sonos_all` in `groups.yaml` file with **your** initial master speaker `entity_id` only. Remaining speaker entities will be populated dynamically
 - Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** primary openHASP plate `entity_id`. Group will be dynamically expanded and populated with all available openHASP entities - sorted in alphabetical order
 - `group.sonos_all_speakers` should be left untouched and unpopulated. It will be populated upon HA start and dynamically revised upon speaker availability change
 
-- Copy all sensors from `configuration.yaml` to your own configuration file. Note that there are three different sensor types, so take care to paste these under the correct **sensor type slug** (sensor, mqtt and binary_sensor)
-- In top of `configurations.yaml` file, I've included my five page 0 Custom Component entries, if you want to include these as well (not mandatory).  Search for `t3e_02` (my plate name) and replace with **your** plate name. There are five hardcoded openHASP entities in the Custom Component part of the`config.yaml` file
+- Copy all sensors from `configuration.yaml` to your own configuration file. Note that there are three different sensor types, so take care to paste these in under the correct **sensor type slug** (sensor, mqtt and binary_sensor)
+- In top of `configuration.yaml` file, I've included my four page 0 Custom Component object entries, if you want to include these as well (not mandatory).  Search for `t3e_02` (my plate name) and replace with **your** plate name. There are five hardcoded openHASP entities in the Custom Component part of the`configuration.yaml` file
 	-	The Custom Component configuration **slug entry**
-	-	Additional **four entries** in the **page 0 objects**
+	-	Additional **four entries** in the **page 0 object templates**
 	
 **Changes in Home Assistant:**
 
@@ -158,7 +159,7 @@ Example below:
 
 - **UI Theme:** Hasp Dark
 - **Primary color:** R:222, G:113, B:16
-- **Secondary color:** Default (untouched)
+- **Secondary color:** R:131, G:80, B:0
 
 
 #### ’To do’ list:
@@ -166,7 +167,7 @@ Example below:
 - 250 millisecond mandatory delay auto opening the dropdown menus is currently needed. Waiting for an openHASP fix by @fvanroie 
 - General config clean-up (templates)
 - Add Spotify / TuneIn logo’s as small png overlays
-- Populate and update plate completely on plate reconnect and/or HA restart.
+- Populate and update plate completely on plate reconnect and/or HA restart
 
 Suggestions, improvements, error reporting etc. are very welcome ! 🙂
 
