@@ -1,10 +1,12 @@
 ﻿
-# openHASP Sonos group player - multiple plates documentation v1.04
+# openHASP Sonos group player - multiple plates documentation v1.05
 
 ![T3E Sonos media player plate](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image.png) ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/image6_320x480.png)
 ![](https://github.com/htvekov/openHASP-Sonos-media-player/blob/main/images/sunton_openhasp_sonos_01.png)
 
 ### Revision:
+-  **1.05** (2023-02-27)
+	 Migration of the last CC entries to automations now completed. Configuration now only consists of sensors in configuration.yaml and logic in automations.yaml
 -  **1.04** (2023-02-23)
 	 Configuration now supports multiple, simultanious plates with varying display width. openHASP entities are now added dynamically as well. Only need to enter one initial plate entity_id and one initial Sonos speaker entity. Automations will populate groups dynamically 
 - **1.03** (2023-02-11)
@@ -26,6 +28,7 @@ Configuration prepared to run either multiple 320x480 or 480x480 res. devices wi
 	- commit 7a83367 or newer (January 18th, 2023)
 - openHASP Custom Component installed in HA
 	- `main` branch commit `b2ed186` or newer required (January 30th, 2023)
+	- Custom Component is still needed, even though all logic has been migrated from CC entries to automations, as logic use the CC `push_image` function
 - Home Assistant with Sonos integration installed
 	- Tested working with Home Assistant 2022.10.4
 - Sonos speakers + active Sonos app
@@ -33,7 +36,7 @@ Configuration prepared to run either multiple 320x480 or 480x480 res. devices wi
 	- Setup with both S1 & S2 devices will work as well. But S1 devices can't join S2 groups and vice versa (Sonos restriction) 
 -   GS-T3E / WT32-SC01 (plus) / Sunton ESP32-48S035 / Sunton ESP32-8048S050 / Sunton ESP32-8048S070 or similar devices **with** PSram
 	- Configuration can dynamically handle **both** multiple 320x480, 480x480 or 480x800 resolution displays
-	- Even devices with different resolutions can be mixed and matched, as configuration is almost fully dynamic now
+	- Even devices with different resolutions can be mixed and matched, as configuration now is fully dynamic
 	
 With this openHASP Sonos plate configuration, you’ll be able to control single or grouped Sonos speakers from multiple openHASP plates. Plates just have to share identical object mapping (page/object number).
 
@@ -105,7 +108,10 @@ Example below:
 	- On 480 x 800 resolution devices both master- and slave speakers are displayed at all times
 
 #### Config consists of four elements:
-HA groups, configuration (both support sensors and CC plate config), automation and the plate jsonl.
+- `groups.yaml` containing needed Home Assistant groups
+- `configuration.yaml` containing all support 'helper' sensors. Both 'standard'-, mqtt- and binary sensors
+- `automations.yaml` containing all needed logic
+- Device specific `jsonl` file containing all the objects
 
 ### Following needs to be done for config to work !!
 
@@ -123,17 +129,18 @@ HA groups, configuration (both support sensors and CC plate config), automation 
 
 **Changes in configuration files:**
 - Copy all page 2 objects from either `sunton_jsonl`, `gs_t3e.jsonl` or `wt32_01_plus.jsonl` to your existing openHASP jsonl file. I've included my page 0 objects as well in the files, so you can copy the entire page layout if you want.
-	- **480 x 800 pixels (landscape mode):** Use `sunton_jsonl` file 
+	- **480 x 800 pixels (landscape mode):** Use `sunton.jsonl` file 
 	- **480 x 480 pixels:** Use `gs_t3e.jsonl` file
 	- **320 x 480 pixels (portrait mode):** Use `wt32_01_plus.jsonl` file
-- Populate `group.sonos_all` in `groups.yaml` file with **your** typical master speaker `entity_id` only. Remaining speaker entities will be populated dynamically `group.sonos_all_speakers` should be left untouched and unpopulated. It will be populated upon HA start and dynamically revised upon speaker availability change
+- Populate `group.sonos_all` in `groups.yaml` file with **your** typical master speaker `entity_id` only. Remaining speaker entities will be populated dynamically
 - Populate `group.hasp_sonos_devices`in `groups.yaml` file with **your** primary openHASP plate `entity_id`. Group will be dynamically expanded and populated with all available openHASP entities - sorted in alphabetical order
-- In`config.yaml` file, search for `t3e_02` (my plate name) and replace with **your** plate name.
-Currently there are five hardcoded openHASP entities left in the Custom Component part of the`config.yaml` file
-	-	The Custom Component configuration **slug entry**
-	-	And additional **four entries** in the **page 0 objects** (not mandatory)
-	- No hardcoded entities left in the remaining `config.yaml`or `automations.yaml` files
+- `group.sonos_all_speakers` should be left untouched and unpopulated. It will be populated upon HA start and dynamically revised upon speaker availability change
 
+- Copy all sensors from `configuration.yaml` to your own configuration file. Note that there are three different sensor types, so take care to paste these under the correct **sensor type slug** (sensor, mqtt and binary_sensor)
+- In top of `configurations.yaml` file, I've included my five page 0 Custom Component entries, if you want to include these as well (not mandatory).  Search for `t3e_02` (my plate name) and replace with **your** plate name. There are five hardcoded openHASP entities in the Custom Component part of the`config.yaml` file
+	-	The Custom Component configuration **slug entry**
+	-	Additional **four entries** in the **page 0 objects**
+	
 **Changes in Home Assistant:**
 
 - The Sonos integration has the favorites sensor disabled by default. You need to **enable** `sensor.sonos_favorites` for the configuration to work. Check [HA Sonos integration](https://www.home-assistant.io/integrations/sonos/) to find details on this
@@ -158,7 +165,6 @@ Currently there are five hardcoded openHASP entities left in the Custom Componen
 
 - 250 millisecond mandatory delay auto opening the dropdown menus is currently needed. Waiting for an openHASP fix by @fvanroie 
 - General config clean-up (templates)
-- Revise last bits to make config fully dynamic with multiple devices using different display screen resolutions
 - Add Spotify / TuneIn logo’s as small png overlays
 - Populate and update plate completely on plate reconnect and/or HA restart.
 
