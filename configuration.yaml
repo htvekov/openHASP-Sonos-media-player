@@ -22,20 +22,8 @@ openhasp:
         properties:
           "text_color": "{% if -30 <= state_attr('openhasp.t3e_02','rssi') | int(0) %}green{% elif -31 > state_attr('openhasp.t3e_02','rssi') | int(0) >= -50 %}orange{% elif -51 > state_attr('openhasp.t3e_02','rssi') |int (0) >= -80 %}tomato{% else %}red{% endif %}"
       
-      # Page 2 - Sonos media player plate
-      # Progressbar - Set max value according to media_duration attribute
-      # Reset value to zero moving forward in playlist while paused
-      - obj: "p2b41"
-        properties:
-          "max": "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0],'media_duration') | int(0) }}"
-          "val": >
-            {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position') != None %}
-              {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position') | int(0) }}
-            {% else %}
-              0
-            {% endif %}
-
       
+
 
 
 # Sonos support sensors - openHASP Sonos group multiple plates configuration
@@ -45,6 +33,7 @@ sensor:
       sonos_master_friendly:
         friendly_name: "Sonos Master Friendly"
         value_template: "{{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'friendly_name') }}"
+      
       sonos_slaves_friendly:
         friendly_name: "Sonos Slaves Friendly"
         value_template: >- 
@@ -53,8 +42,6 @@ sensor:
              {%- if loop.last %}{{ friendly_name }}{% else %}{{ friendly_name }}, {% endif -%}
            {%- endfor %}
 
-  - platform: template
-    sensors:
       sonos_active_speakers:
         value_template: >-
           {{ states('sensor.sonos_master_friendly')}} {% if states('sensor.sonos_slaves_friendly') | length != 0%}{{"•"|e}} {{states('sensor.sonos_slaves_friendly')}}{% else %}{% endif %}
@@ -161,6 +148,15 @@ sensor:
         value_template: >-
           {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_duration') != None %}
             {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_duration') }}
+          {% else %}
+            0
+          {% endif %}
+          
+      ### 260223 Added media position helper sensor
+      hasp_sonos_media_position:
+        value_template: >
+          {% if state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position') != None %}
+            {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position') | int(0) }}
           {% else %}
             0
           {% endif %}
