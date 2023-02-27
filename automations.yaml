@@ -385,6 +385,35 @@
           {'page':2,'id':41,'hidden':0}{'page':2,'id':25,'enabled':1}{'page':2,'id':27,'enabled':1}
         {% endif %}
 
+# 260223 New automation
+# Moved from CC properties part p2b41
+- id: openhasp_sonos_push_max_duration_to_plates
+  alias: openHASP Sonos push max duration to plates
+  mode: restart
+  trigger:
+  - platform: state
+    entity_id: sensor.hasp_sonos_media_duration
+  action:
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b41.max
+      payload_template: "{{ states('sensor.hasp_sonos_media_duration') | int }}"
+
+
+# 260223 New automation
+# Moved from CC properties part p2b41
+- id: openhasp_sonos_push_media_position_to_plates
+  alias: openHASP Sonos push media position to plates
+  mode: restart
+  trigger:
+  - platform: state
+    entity_id: sensor.hasp_sonos_media_position
+  action:
+  - service: mqtt.publish
+    data:
+      topic: hasp/plates/command/p2b41.val
+      payload_template: "{{ states('sensor.hasp_sonos_media_position') | int }}"
+
 
 # Listen for changes from ALL plates (+ in topic)  !
 # Remember plates have to share same object mapping (page/object number)
