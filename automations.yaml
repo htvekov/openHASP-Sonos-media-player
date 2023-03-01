@@ -786,18 +786,14 @@
     platform: time_pattern
     seconds: '/5'
   condition:
-    condition: and
-    conditions:
-    - condition: state
-      # Dynamic entity_id condition - Sonos master speaker state 
-      entity_id: sensor.hasp_sonos_master_state
-      state: 'playing
+    condition: template
+    value_template: "{{ states('sensor.media_source') == 'no source' and states('sensor.hasp_sonos_master_state') == 'playing' }}"
   action:
     service: mqtt.publish
     data_template:
       topic: hasp/plates/command/p2b41.val
       payload: >-
-          {{ (as_timestamp(now(),0) - as_timestamp(state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position_updated_at'))) | round(0) + (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position')) | int(0) }}
+          {{ (as_timestamp(now(),0) - as_timestamp(state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position_updated_at'),0)) | round(0) + (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position')) | int(0) }}
 
 
 # Listen for changes from ALL plates (+ in topic)  !
