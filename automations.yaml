@@ -797,7 +797,7 @@
     data_template:
       topic: hasp/plates/command/p2b41.val
       payload: >-
-          {{ (as_timestamp(now()) - as_timestamp(state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position_updated_at'))) | round(0) + (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position')) | int(0) }}
+          {{ (as_timestamp(now(),0) - as_timestamp(state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position_updated_at'))) | round(0) + (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_position')) | int(0) }}
 
 
 # Listen for changes from ALL plates (+ in topic)  !
