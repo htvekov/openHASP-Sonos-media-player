@@ -432,7 +432,7 @@
     data_template:
       entity_id:
       - group.sonos_all
-      volume_level: '{{ trigger.payload_json.val | float / 100 / (1 + (1 - trigger.payload_json.val | float / 100 )) }}'
+      volume_level: '{{ trigger.payload_json.val | float / 100(1) / (1 + (1 - trigger.payload_json.val | float(1) / 100 )) }}'
 
 
 # Push Sonos volume to plates as 'converted' values. Both val and value_str are pushed
@@ -641,7 +641,7 @@
           {% set entity = state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}
           {% set val = trigger.payload_json.val | int(0) %}
           {{ entity[val] }} 
-        volume_level: "{{ states.sensor.sonos_volume.state | float / 100}}"  
+        volume_level: "{{ states.sensor.sonos_volume.state | float(1) / 100}}"  
     - service: media_player.join
       data:
         entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
