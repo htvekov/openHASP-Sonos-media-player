@@ -52,7 +52,7 @@ sensor:
         value_template: >-
           {% if (is_state('sensor.media_source', 'no source') and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None) or (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' and states('sensor.media_source')[0:3] != 'DR ' and states('binary_sensor.sonos_media_flip_title_artist') == 'off') %}
             {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') }}
-          {% elif states('sensor.media_source')[0:3] == 'DR ' and state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' and state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title') != state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_')%}
+          {% elif states('sensor.media_source')[0:3] == 'DR ' and state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' and (true if ' / ' in state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') else false) %}
             {{ state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title').split (' / ')[0] }}
           {% elif states('binary_sensor.sonos_media_flip_title_artist') == 'on' and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') != None %}
             {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') }}
@@ -67,13 +67,13 @@ sensor:
         value_template: >-
           {% if (is_state('sensor.media_source', 'no source') and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') != None)  or (state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') != None and states('sensor.media_source')[0:3] != 'DR ' and states('binary_sensor.sonos_media_flip_title_artist') == 'off') %}
             {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_artist') }}
-          {% elif states('sensor.media_source')[0:3] == 'DR ' and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' %}
+          {% elif states('sensor.media_source')[0:3] == 'DR ' and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None and states(state_attr('group.sonos_all', 'entity_id')[0]) == 'playing' and (true if ' / ' in state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') else false) %}
             {{ state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'media_title').split (' / ')[1] }}
           {% elif states('binary_sensor.sonos_media_flip_title_artist') == 'on' and state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') != None %}
             {{ state_attr(state_attr('group.sonos_all', 'entity_id')[0], 'media_title') }}
           {% else %}
             ---
-          {% endif %} 
+          {% endif %}
 
       media_album_name:
         value_template: >-
