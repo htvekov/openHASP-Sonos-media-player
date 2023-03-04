@@ -802,6 +802,9 @@
 # Only change for sources (radio stations) - not for playlists
 # 190822: Revised to use new sensor.sonos_favorites as source_list attribute has been deprecated
 # 240223: Revised to one combined automation for both previous/next events
+# 030323: Revised condition_template to cope with e.g. Spotify Radio 'channels' and treat these as a 'playlist' instead of a 'source'
+# It's possible to skip to next track when playing. Skipping when paused is not possible.
+# Previous track can't be selected
 - id: openhasp_sonos_prev_next_source
   alias: openHASP Sonos previous/next source
   mode: single
@@ -814,7 +817,7 @@
       payload: '{"event":"down"}'
   condition:
   - condition: template
-    value_template: "{{ states('sensor.media_source') != 'no source' }}"
+    value_template: "{{ true if state_attr(state_attr('group.sonos_all','entity_id')[0], 'media_duration') else false }}"
   action:
   - service: media_player.select_source
     data_template:
