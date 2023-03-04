@@ -778,7 +778,8 @@
 
 # Every five seconds - Push media_duration to plates when playing
 # Don't push update for Sonos sources (radio stations) - check for media_position attribute presence
-# When paused, CC will get exact update from HA's media player state changes and update plate
+# When paused, page will get exact update from HA's media player state changes and update plates
+## 0303023 Revised media_duration to cope with Spotify Radio
 - id: openhasp_update_media_duration
   alias: openHASP update media duration
   mode: single
@@ -787,7 +788,7 @@
     seconds: '/5'
   condition:
     condition: template
-    value_template: "{{ states('sensor.media_source') == 'no source' and states('sensor.hasp_sonos_master_state') == 'playing' }}"
+    value_template: "{{ (true if state_attr(state_attr('group.sonos_all','entity_id')[0], 'media_position') != None else false) and states('sensor.hasp_sonos_master_state') == 'playing' }}"
   action:
     service: mqtt.publish
     data_template:
