@@ -8,10 +8,10 @@
 {"id":27,"action":{"down":"page 4"},"obj":"btn","x":690,"y":400,"w":110,"h":80,"bg_opa":180,"bg_color":"#000000","border_color":"#C7BAA7","border_width":2,"radius":10,"radius1":10,"radius2":10,"text":"\ue595","text_color":"#978B7D","text_font":64}
 
 {"id":04,"obj":"roller","enabled":false,"click":false,"x":0,"y":-1,"w":800,"text_line_space":10,"bg_opa1":180,"bg_opa2":0,"border_width1":0,"val":0,"rows":1,"options":"ENERGY\nSONOS\nOFFICE\nWEATHER\nFAMILY\nNORDPOOL","text_font":24,"bg_color1":"#000000","text_color1":"#FFFFFF","bg_color":"#000000","text_color":"#000000","border_side":0,"radius":0}
-{"id":05,"obj":"label","enabled":false,"x":707,"y":5,"h":30,"w":90,"bg_opa":0,"text":"\ue50f 00.0°C","align":"right","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":24}
-{"id":06,"obj":"label","enabled":false,"x":3,"y":5,"h":30,"w":62,"bg_opa":0,"text":"00:00","align":"left","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":24}
-{"id":07,"obj":"label","enabled":false,"x":60,"y":2,"w":30,"h":20,"bg_opa":0,"text":"\ue5a9","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":16}
-{"id":08,"obj":"label","enabled":false,"x":75,"y":2,"w":30,"h":20,"bg_opa":0,"text":"\ue004","bg_color":"#2C3E50","text_color":"green","text_font":16}
+{"id":05,"obj":"label","enabled":false,"x":707,"y":5,"h":30,"w":90,"bg_opa":0,"text":"00.0°C","align":"right","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":24}
+{"id":06,"obj":"label","enabled":false,"x":50,"y":5,"w":250,"h":30,"bg_opa":0,"text":"00:00:00","template":"%H:%M:%S  %b %e, %Y","bg_color":"#2C3E50","text_color":"white","align":"left","text_font":24}
+{"id":07,"obj":"label","enabled":false,"x":05,"y":2,"w":30,"h":20,"bg_opa":0,"text":"\ue5a9","bg_color":"#2C3E50","text_color":"#FFFFFF","text_font":16}
+{"id":08,"obj":"label","enabled":false,"x":20,"y":2,"w":30,"h":20,"bg_opa":0,"text":"\ue004","bg_color":"#2C3E50","text_color":"green","text_font":16}
 
 
 {"page":2,"bg_grad_color":"#d58518","bg_color":"grey","border_width":0,"comment":"---------- Page 2 ----------"}
