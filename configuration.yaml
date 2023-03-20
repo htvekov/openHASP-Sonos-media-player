@@ -12,14 +12,11 @@ openhasp:
           "val": "{{states('openhasp.t3e_02') | int(0) -1}}"
       - obj: "p0b5"
         properties:
-          "text": "{% if states('sensor.outdoor_temperature') != 'unknown' %} {{'\\ue50f'}} {{states('sensor.outdoor_temperature') }}{{'\\u00b0'}}C {% else %} {{'\\ue50f'}} -.- {{'\\u00b0'}}C {% endif %}"
-      - obj: "p0b6"
-        properties:
-          "text": "{{ states('sensor.time') }}"
+          "text": "{% if states('sensor.outdoor_temperature') != 'unknown' %} {{ '%.1f' | format (states('sensor.outdoor_temperature') | round(1)) }}{{'\\u00b0'}}C {% else %} -.-{{'\\u00b0'}}C{% endif %}"
       - obj: "p0b7"
         properties:
-          "text_color": "{% if -30 <= state_attr('openhasp.t3e_02','rssi') | int(0) %}green{% elif -31 > state_attr('openhasp.t3e_02','rssi') | int(0) >= -50 %}orange{% elif -51 > state_attr('openhasp.t3e_02','rssi') |int (0) >= -80 %}tomato{% else %}red{% endif %}"
-      
+          "text_color": "{% if -50 <= state_attr('openhasp.t3e_02','rssi') | int(0) %}green{% elif -51 > state_attr('openhasp.t3e_02','rssi') | int(0) >= -60 %}olive{% elif -61 > state_attr('openhasp.t3e_02','rssi') | int(0) >= -70 %}orange{% elif -71 > state_attr('openhasp.t3e_02','rssi') |int (0) >= -80 %}maroon{% else %}red{% endif %}"
+    
       
 
 
