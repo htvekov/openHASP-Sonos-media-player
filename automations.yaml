@@ -581,31 +581,28 @@
         topic: hasp/plates/command/jsonl
         payload_template: >
           {"page":2,"id":93,"options":{% set ns=namespace(counter="") %}{% for sources in state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}{% set friendly = "#008000 " + state_attr((sources), 'friendly_name') + '#' if sources in state_attr('group.sonos_all', 'entity_id') else "#FF0000 " + state_attr((sources), 'friendly_name') + '#' %}{% set ns.counter = ns.counter + '\"'+ friendly +'"' %}{% if not loop.last %}{% set ns.counter = ns.counter + ',' + '"\\n"' + ',' %}{% endif %}{% endfor %}[{{ns.counter}}]}
- 
 
+          
 - id: openhasp_sonos_slave_speakers_unjoin
   alias: openHASP Sonos slave speakers unjoin
   mode: queued
   trigger:
     platform: mqtt
     topic: hasp/+/state/p2b93
+  variables:
+    val: "{{ trigger.payload_json.val | int(0) }}"
+    entity: "{{ state_attr('group.sonos_all_speakers', 'entity_id')[1:] }}"
   condition:
     condition: and
     conditions:
     - condition: template
-      value_template: >
-        {% set val = trigger.payload_json.val | int(0) %}
-        {% set entity = state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}
-        {{ 'true' if entity[val] in state_attr('group.sonos_all', 'entity_id') else 'false' }}
+      value_template: "{{ true if entity[val] in state_attr('group.sonos_all', 'entity_id') else false }}"
     - condition: template
       value_template: "{{ trigger.payload_json.event == 'down' }}"
   action:
-    - service: media_player.unjoin
-      data:
-        entity_id: >-
-          {% set entity = state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}
-          {% set val = trigger.payload_json.val | int(0) %}
-          {{ entity[val] }}
+  - service: media_player.unjoin
+    data:
+      entity_id: "{{ entity[val] }}"
 
 
 # Now uses sensor.sonos_volume which is the correct master speaker / HA volume
@@ -617,38 +614,29 @@
   trigger:
     platform: mqtt
     topic: hasp/+/state/p2b93
+  variables:
+    val: "{{ trigger.payload_json.val | int(0) }}"
+    entity: "{{ state_attr('group.sonos_all_speakers', 'entity_id')[1:] }}"
   condition:
     condition: and
     conditions:
     - condition: template
-      value_template: >
-        {% set val = trigger.payload_json.val | int(0) %}
-        {% set entity = state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}
-        {{ 'true' if entity[val] not in state_attr('group.sonos_all', 'entity_id') else 'false' }}
+      value_template: "{{ true if entity[val] not in state_attr('group.sonos_all', 'entity_id') else false }}"
     - condition: template
       value_template: "{{ trigger.payload_json.event == 'down' }}"
-  action: 
-    - service: media_player.volume_mute
-      data:
-        entity_id: >-
-          {% set entity = state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}
-          {% set val = trigger.payload_json.val | int(0) %}
-          {{ entity[val] }} 
-        is_volume_muted: "{{ true if state_attr((state_attr('group.sonos_all', 'entity_id')[0]),'is_volume_muted') else false }}"
-    - service: media_player.volume_set
-      data_template:
-        entity_id: >-
-          {% set entity = state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}
-          {% set val = trigger.payload_json.val | int(0) %}
-          {{ entity[val] }} 
-        volume_level: "{{ states.sensor.sonos_volume.state | float(1) / 100}}"  
-    - service: media_player.join
-      data:
-        entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
-        group_members: >-
-          {% set entity = state_attr('group.sonos_all_speakers', 'entity_id')[1:] %}
-          {% set val = trigger.payload_json.val | int(0) %}
-          {{ entity[val] }} 
+  action:
+  - service: media_player.volume_mute
+    data:
+      entity_id: "{{ entity[val] }}"
+      is_volume_muted: "{{ true if state_attr((state_attr('group.sonos_all', 'entity_id')[0]), 'is_volume_muted') else false }}"
+  - service: media_player.volume_set
+    data_template:
+      entity_id: "{{ entity[val] }}"
+      volume_level: "{{ states.sensor.sonos_volume.state | float(1) / 100}}"
+  - service: media_player.join
+    data:
+      entity_id: "{{ state_attr('group.sonos_all', 'entity_id')[0] }}"
+      group_members: "{{ entity[val] }}"
 
 
 - id: openhasp_sonos_change_master_speaker_btnmtrx
@@ -703,8 +691,11 @@
   variables:
     # Store chosen speaker in variable. Data will be lost before automation has finished
     # Skip entity_id[0] in search = current master speaker (not included in button matrix)
+    # Skip entity_id if chosen speaker is 'E X I T'
     cs: >
-      {{ state_attr('group.sonos_all_speakers','entity_id')[trigger.payload_json.val + 1] }}
+      {% if trigger.payload_json.text != '#FFFFFF E X I T#' %}
+        {{ state_attr('group.sonos_all_speakers','entity_id')[trigger.payload_json.val + 1] }}
+      {% endif %}
     # Check if chosen speaker already is part of existing group and store it
     # Data will be lost before automation has finished
     in_group: >
@@ -716,7 +707,7 @@
         {% endfor %}
       {{ true if ns.ig != "not_in_group" else false }}
   action:
-  # If device is a 5 or 7" Sunton, then hide master speaker button matrix and unhide slave speaker button matrix
+  # If device is a 7" Sunton, then hide master speaker button matrix and unhide slave speaker button matrix
   # Any other devices just 'emulate' an 'arrow up' press in a dropdown menu and exit tab menu completely
   - service: mqtt.publish
     data:
@@ -727,7 +718,11 @@
         {% else %}
           {'page':2,'id':95,'to_back':1,'hidden':1}{'page':2,'id':23,'hidden':1}{'page':2,'id':26,'hidden':1}{'page':2,'id':22,'hidden':0}{'page':2,'id':15,'hidden':0}
         {% endif %}
-  # Choose new chosen master speaker (group)
+  # Skip last service calls if chosen speaker is 'E X I T'
+  - condition:
+    - condition: template
+      value_template: "{{ trigger.payload_json.text != '#FFFFFF E X I T#' }}"
+  #  Choose new chosen master speaker (group)
   - service: group.set
     data_template:
       object_id: sonos_all
@@ -738,7 +733,7 @@
   - if:
     - condition: template
       value_template: >
-        {{ in_group and trigger.payload_json.text != "E X I T" }}
+        {{ in_group }}
     then:
     - service: media_player.unjoin
       data_template:
